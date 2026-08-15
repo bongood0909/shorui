@@ -1258,6 +1258,7 @@
     .print-from-name { font-size: 12pt; font-weight: 700; color: var(--p-ink); margin-bottom: 1.5mm; }
     .print-from-reg { margin-top: 1.5mm; padding-top: 1.5mm; border-top: .5pt solid var(--p-rule); }
     .print-seal { position: absolute; top: -2mm; right: 0; width: 17mm; height: 17mm; border: 1pt solid var(--p-red); border-radius: 1mm; color: var(--p-red); font-size: 7pt; line-height: 1.25; letter-spacing: .05em; text-align: center; display: flex; align-items: center; justify-content: center; opacity: .85; }
+    .print-seal-image { position: absolute; top: -2mm; right: 0; width: 17mm; height: 17mm; object-fit: contain; }
     .print-total-box { display: flex; align-items: baseline; justify-content: space-between; gap: 8mm; border-top: 1.6pt solid var(--p-navy); border-bottom: 1.6pt solid var(--p-navy); background: #f7f8fa; padding: 3mm 4mm; margin: 0 0 2.5mm; }
     .print-total-box-label { font-size: 9.5pt; font-weight: 600; letter-spacing: .08em; color: var(--p-navy); white-space: nowrap; }
     .print-total-box-value { font-size: 18pt; font-weight: 700; color: var(--p-navy); }
@@ -1795,6 +1796,15 @@
         <div class="form-group" style="margin-bottom:12px;"><label>担当者名</label><input type="text" id="issuerStaff"></div>
         <div class="form-group" style="margin-bottom:12px;"><label>インボイス登録番号</label><input type="text" id="issuerInvoiceNo"></div>
         <div class="form-group"><label>印の文字</label><input type="text" id="issuerSeal" maxlength="4"></div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>印の画像（任意）</label>
+          <input type="file" id="issuerSealFile" accept="image/*" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
+          <button type="button" class="btn btn-secondary" id="issuerSealPickBtn" style="width:100%;">画像を選ぶ</button>
+          <img id="issuerSealPreview" alt="印影プレビュー" style="display:none; width:60px; height:60px; object-fit:contain; margin:10px auto 0;">
+          <button type="button" class="btn btn-secondary" id="issuerSealClearBtn" style="display:none; width:100%; margin-top:8px;">画像を削除</button>
+          <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-weight:400;"><input type="checkbox" id="issuerSealWhite" checked>白い背景を透明にする</label>
+          <div class="data-note">画像は自動で小さくしてから、この端末の中にだけ保存されます。<br>ネット上には保存されません。透過PNGを使うか、白背景を透明にするにチェックを入れてください。<br>画像を設定すると、上の「印の文字」より優先されます。</div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-close-modal="issuerModal">キャンセル</button>
@@ -1991,9 +2001,10 @@
     // 個人情報はコードに書かない。「発行者設定」画面から入力し端末にだけ保存する。
     const ISSUER_KEY = 'inv_issuer';
     const ISSUER_DEFAULT = {
-      company: '', zip: '', address: '', tel: '', staff: '', invoice_no: '', seal_text: ''
+      company: '', zip: '', address: '', tel: '', staff: '', invoice_no: '', seal_text: '', seal_image: ''
     };
     let ISSUER = Object.assign({}, ISSUER_DEFAULT);
+    let pendingSealImage = '';
 
     function loadIssuer() {
       let stored = null;
@@ -2004,7 +2015,49 @@
     function saveIssuerObj(obj) {
       ISSUER = Object.assign({}, ISSUER_DEFAULT, obj);
       try { localStorage.setItem(ISSUER_KEY, JSON.stringify(ISSUER)); return true; }
-      catch (e) { toast('保存できませんでした', 'error'); return false; }
+      catch (e) { toast('保存できませんでした。画像が大きすぎる可能性があります', 'error'); return false; }
+    }
+
+    // 印影画像を縮小し、必要なら白背景を透明にして PNG の data URL を返す
+    function processSealImage(file, removeWhite) {
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onerror = () => reject(new Error('画像を読み込めませんでした'));
+        fr.onload = () => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('画像を表示できませんでした'));
+          img.onload = () => {
+            const render = (maxSide) => {
+              const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+              const w = Math.max(1, Math.round(img.width * scale));
+              const h = Math.max(1, Math.round(img.height * scale));
+              const cv = document.createElement('canvas');
+              cv.width = w; cv.height = h;
+              const ctx = cv.getContext('2d');
+              ctx.clearRect(0, 0, w, h);
+              ctx.drawImage(img, 0, 0, w, h);
+              if (removeWhite) {
+                const data = ctx.getImageData(0, 0, w, h);
+                const d = data.data;
+                for (let i = 0; i < d.length; i += 4) {
+                  const r = d[i], g = d[i + 1], b = d[i + 2];
+                  const min = Math.min(r, g, b);
+                  if (min > 240) { d[i + 3] = 0; }
+                  else if (min > 200) { d[i + 3] = Math.round(d[i + 3] * (240 - min) / 40); }
+                }
+                ctx.putImageData(data, 0, 0);
+              }
+              return cv.toDataURL('image/png');
+            };
+            let url = render(400);
+            if (url.length > 200000) url = render(300);
+            if (url.length > 200000) url = render(220);
+            resolve(url);
+          };
+          img.src = String(fr.result);
+        };
+        fr.readAsDataURL(file);
+      });
     }
 
     function issuerIsEmpty() { return !String(ISSUER.company || '').trim(); }
@@ -2421,7 +2474,35 @@
       $('#issuerStaff').value = ISSUER.staff || '';
       $('#issuerInvoiceNo').value = ISSUER.invoice_no || '';
       $('#issuerSeal').value = ISSUER.seal_text || '';
+      pendingSealImage = ISSUER.seal_image || '';
+      $('#issuerSealPreview').src = pendingSealImage;
+      $('#issuerSealPreview').style.display = pendingSealImage ? 'block' : 'none';
+      $('#issuerSealClearBtn').style.display = pendingSealImage ? 'block' : 'none';
       openModal('issuerModal');
+    });
+    $('#issuerSealPickBtn').addEventListener('click', () => {
+      $('#issuerSealFile').value = '';
+      $('#issuerSealFile').click();
+    });
+    $('#issuerSealFile').addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try {
+        const url = await processSealImage(file, $('#issuerSealWhite').checked);
+        pendingSealImage = url;
+        $('#issuerSealPreview').src = url;
+        $('#issuerSealPreview').style.display = 'block';
+        $('#issuerSealClearBtn').style.display = 'block';
+        toast(`印影を読み込みました（約${Math.round(url.length / 1024)}KB）`);
+      } catch (err) {
+        toast(err.message || '画像を読み込めませんでした', 'error');
+      }
+    });
+    $('#issuerSealClearBtn').addEventListener('click', () => {
+      pendingSealImage = '';
+      $('#issuerSealPreview').src = '';
+      $('#issuerSealPreview').style.display = 'none';
+      $('#issuerSealClearBtn').style.display = 'none';
     });
     $('#saveIssuerBtn').addEventListener('click', () => {
       if (!$('#issuerCompany').value.trim()) { toast('屋号・会社名を入力してください', 'warn'); return; }
@@ -2429,7 +2510,7 @@
         company: $('#issuerCompany').value.trim(), zip: $('#issuerZip').value.trim(),
         address: $('#issuerAddress').value.trim(), tel: $('#issuerTel').value.trim(),
         staff: $('#issuerStaff').value.trim(), invoice_no: $('#issuerInvoiceNo').value.trim(),
-        seal_text: $('#issuerSeal').value.trim()
+        seal_text: $('#issuerSeal').value.trim(), seal_image: pendingSealImage
       });
       if (!saved) return;
       closeModal('issuerModal');
@@ -3638,7 +3719,9 @@
               <div class="print-lead">${escapeHtml(type.lead)}</div>
             </div>
             <div class="print-from">
-              ${ISSUER.seal_text ? `<div class="print-seal">${escapeHtml(ISSUER.seal_text)}<br>印</div>` : ''}
+              ${ISSUER.seal_image
+                ? `<img class="print-seal-image" src="${ISSUER.seal_image}" alt="印">`
+                : (ISSUER.seal_text ? `<div class="print-seal">${escapeHtml(ISSUER.seal_text)}<br>印</div>` : '')}
               ${ISSUER.company ? `<div class="print-from-name">${escapeHtml(ISSUER.company)}</div>` : ''}
               ${ISSUER.zip ? `${escapeHtml(ISSUER.zip)}<br>` : ''}
               ${ISSUER.address ? `${escapeHtml(ISSUER.address)}<br>` : ''}
