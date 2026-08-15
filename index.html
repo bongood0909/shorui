@@ -1254,7 +1254,7 @@
     .print-to-name .print-hon { font-size: 11pt; font-weight: 500; margin-left: .6em; }
     .print-to-addr { font-size: 8.5pt; color: var(--p-soft); margin-top: 2.5mm; line-height: 1.6; }
     .print-lead { font-size: 9.5pt; color: var(--p-soft); margin-top: 3mm; }
-    .print-from { flex: 0 0 66mm; width: 66mm; font-size: 8.5pt; line-height: 1.6; color: var(--p-soft); position: relative; }
+    .print-from { flex: 0 0 58mm; width: 58mm; font-size: 8.5pt; line-height: 1.6; color: var(--p-soft); position: relative; }
     .print-from-name { font-size: 12pt; font-weight: 700; color: var(--p-ink); margin-bottom: 1.5mm; }
     .print-from-reg { margin-top: 1.5mm; padding-top: 1.5mm; border-top: .5pt solid var(--p-rule); }
     .print-seal { position: absolute; top: -2mm; right: 0; width: 17mm; height: 17mm; border: 1pt solid var(--p-red); border-radius: 1mm; color: var(--p-red); font-size: 7pt; line-height: 1.25; letter-spacing: .05em; text-align: center; display: flex; align-items: center; justify-content: center; opacity: .85; }
@@ -1269,17 +1269,17 @@
     .print-table thead th { background: transparent; border-top: .8pt solid var(--p-rule-strong); border-bottom: .8pt solid var(--p-rule-strong); padding: 2mm; font-size: 8.5pt; font-weight: 600; color: var(--p-soft); letter-spacing: .06em; text-align: right; white-space: nowrap; }
     .print-table thead th.l { text-align: left; }
     .print-table thead th.c { text-align: center; }
-    .print-table tbody td { padding: 1.7mm 2mm; border-bottom: .4pt solid var(--p-rule); text-align: right; vertical-align: top; }
+    .print-table tbody td { padding: 1.5mm 2mm; border-bottom: .4pt solid var(--p-rule); text-align: right; vertical-align: top; }
     .print-table tbody td.l { text-align: left; }
     .print-table tbody td.c { text-align: center; color: var(--p-soft); font-size: 8.5pt; }
     .print-table tbody tr.is-discount td { color: var(--p-red); }
     .print-table tbody tr:last-child td { border-bottom: .8pt solid var(--p-rule-strong); }
     .print-table tbody td.empty { text-align: center; color: var(--p-faint); }
-    .print-summary { margin-left: auto; width: 74mm; font-size: 9.5pt; margin-bottom: 6mm; }
-    .print-summary-row { display: flex; justify-content: space-between; gap: 4mm; padding: 1.2mm 0; }
+    .print-summary { margin-left: auto; width: 70mm; font-size: 9.5pt; margin-bottom: 6mm; }
+    .print-summary-row { display: flex; justify-content: space-between; gap: 4mm; padding: 0.9mm 0; }
     .print-summary-row.sep { border-top: .4pt solid var(--p-rule); }
     .print-summary-row .lbl { color: var(--p-soft); }
-    .print-summary-row.total { border-top: 1.2pt solid var(--p-rule-strong); margin-top: 1.2mm; padding-top: 2mm; font-size: 12pt; font-weight: 700; color: var(--p-navy); }
+    .print-summary-row.total { border-top: 1.2pt solid var(--p-rule-strong); margin-top: 1.2mm; padding-top: 1.6mm; font-size: 12pt; font-weight: 700; color: var(--p-navy); }
     .print-summary-row.total .lbl { color: var(--p-navy); }
     .print-foot { display: flex; gap: 8mm; margin-top: auto; }
     .print-block { flex: 1 1 0; min-width: 0; font-size: 8.5pt; line-height: 1.6; white-space: pre-line; }
@@ -1288,7 +1288,7 @@
     .print-block .fine { color: var(--p-faint); font-size: 8pt; }
     .print-revenue-stamp { flex: 0 0 22mm; height: 26mm; align-self: flex-end; border: .6pt solid var(--p-rule); font-size: 7pt; color: var(--p-faint); line-height: 1.4; text-align: center; display: flex; align-items: center; justify-content: center; }
 
-    @page { size: A4; margin: 16mm 18mm 18mm; }
+    @page { size: A4; margin: 12mm 14mm 14mm; }
 
     @media print {
       html, body { height: auto !important; overflow: visible !important; background: #fff; }
@@ -1300,7 +1300,7 @@
       .toast-container, #loadingOverlay, .modal { display: none !important; }
       .print-viewport { overflow: visible !important; height: auto !important; }
       .print-scaler { transform: none !important; width: auto !important; }
-      .print-document { box-shadow: none; margin: 0; width: auto !important; padding: 0 !important; min-height: 245mm; }
+      .print-document { box-shadow: none; margin: 0; width: auto !important; padding: 0 !important; min-height: 0 !important; }
       .print-meta { top: 0; right: 0; }
       .print-table thead { display: table-header-group; }
       .print-table tr { break-inside: avoid; page-break-inside: avoid; }
