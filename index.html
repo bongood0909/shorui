@@ -3835,7 +3835,12 @@ ${escapeHtml(c.notes)}
         const availW = pageW - margin * 2;
         const availH = pageH - margin * 2;
         const imgW = availW;
-        const imgH = (canvas.height / canvas.width) * imgW;
+        let imgH = (canvas.height / canvas.width) * imgW;
+
+        // 画面の帳票は 210mm×297mm だが、ブラウザの丸め誤差で数ミリ大きくなることがある。
+        // そのまま分割すると、ほぼ空っぽの2ページ目ができてしまうため、
+        // 1ページに収まる範囲のはみ出しは高さを詰めて1ページに収める。
+        if (imgH > availH && imgH - availH <= 8) imgH = availH;
 
         if (imgH <= availH) {
           pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, margin, imgW, imgH);
@@ -3844,8 +3849,11 @@ ${escapeHtml(c.notes)}
           const pageSliceHeightPx = Math.floor((availH / imgW) * canvas.width);
           let y = 0;
           let first = true;
+          // 1mm 未満の切れ端で余分なページを作らないための下限
+          const minSlicePx = Math.max(2, Math.round((1 / imgW) * canvas.width));
           while (y < canvas.height) {
             const sliceH = Math.min(pageSliceHeightPx, canvas.height - y);
+            if (sliceH < minSlicePx) break;
             const slice = document.createElement('canvas');
             slice.width = canvas.width;
             slice.height = sliceH;
