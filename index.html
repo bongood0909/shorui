@@ -1,0 +1,3815 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>書類管理</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* ====== Common（テーマ非依存） ====== */
+
+      /* Spacing — 8pxグリッド */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-7: 48px;
+      --space-8: 64px;
+
+      /* Typography */
+      --font-sans: -apple-system, "SF Pro Text", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+      --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "游明朝", serif;
+      --font-mono: "SF Mono", "Menlo", monospace;
+
+      --font-size-xs: 12px;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-lg: 18px;
+      --font-size-xl: 20px;
+      --font-size-2xl: 24px;
+      --font-size-3xl: 32px;
+      --font-size-4xl: 48px;
+
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      --line-height-tight: 1.3;
+      --line-height-base: 1.6;
+      --line-height-relaxed: 1.75;
+
+      /* Radius */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+
+      /* Motion */
+      --transition-fast: 150ms ease;
+      --transition-base: 200ms ease;
+
+      /* Icon size */
+      --icon-size-sm: 16px;
+      --icon-size-md: 18px;
+      --icon-size-lg: 20px;
+
+      /* ====== Light theme（デフォルト） ====== */
+      --color-bg: #FAF8F2;
+      --color-surface: #FFFFFF;
+      --color-surface-muted: #F0EDE3;
+      --color-text: #0A1428;
+      --color-text-muted: #3F4A60;
+      --color-text-subtle: #6B7588;
+      --color-border: #C8C0AC;
+      --color-border-strong: #ADA593;
+      --color-accent: #0F1F3D;
+      --color-accent-hover: #1A2F5C;
+      --color-accent-soft: #E2E6F0;
+      --color-text-on-accent: #FAF8F2;
+      --color-stamp: #B42318;
+      --color-brass: #A47E3B;
+      --color-success: #15803D;
+      --color-warning: #B45309;
+      --color-danger: #B42318;
+      --color-info: #1D4ED8;
+      --color-focus-ring: rgba(15, 31, 61, 0.5);
+
+      --shadow-sm: 0 1px 2px rgba(10, 20, 40, 0.06), 0 4px 12px rgba(10, 20, 40, 0.05);
+      --shadow-md: 0 4px 16px rgba(10, 20, 40, 0.08), 0 12px 32px rgba(10, 20, 40, 0.05);
+      --shadow-lg: 0 8px 24px rgba(10, 20, 40, 0.12), 0 24px 48px rgba(10, 20, 40, 0.08);
+
+      --color-main: #2d5016;
+      --color-accent-legacy: #4a8c2a;
+      --color-accent-light: #e8f3de;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; width: 100%; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 16px;
+      line-height: 1.5;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    input, select, textarea {
+      font-size: 16px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      background: var(--color-surface);
+      padding: calc(12px + var(--safe-top)) 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1.5px solid var(--color-border);
+      z-index: 90;
+      min-height: calc(56px + var(--safe-top));
+    }
+
+    .header h1 {
+      font-size: 17px;
+      font-weight: 700;
+      flex: 1;
+      color: var(--color-text);
+    }
+
+    .header-actions { display: flex; gap: 6px; align-items: center; }
+
+    .header-back {
+      background: transparent;
+      border: none;
+      color: var(--color-main);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 8px 12px 8px 4px;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+    }
+
+    .header-back:active { opacity: 0.6; }
+
+    /* ── Main ── */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px;
+      padding-bottom: calc(120px + var(--safe-bottom));
+      background: var(--color-bg);
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.15s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Bottom Nav ── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--color-surface);
+      border-top: 1.5px solid var(--color-border);
+      z-index: 100;
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .bottom-nav-items {
+      display: flex;
+      list-style: none;
+      height: 60px;
+    }
+
+    .bottom-nav-item {
+      flex: 1;
+      display: flex;
+    }
+
+    .bottom-nav-item a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 11px;
+      font-weight: 600;
+      width: 100%;
+      min-height: 60px;
+      transition: color 0.15s;
+    }
+
+    .bottom-nav-item a.active {
+      color: var(--color-main);
+    }
+
+    .bottom-nav-item .icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed;
+      right: 16px;
+      bottom: calc(76px + var(--safe-bottom));
+      background: var(--color-main);
+      color: #fff;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      z-index: 50;
+      min-height: 52px;
+      box-shadow: 0 6px 18px rgba(45,80,22,0.35);
+      transition: transform 0.12s;
+    }
+
+    .fab:active { transform: scale(0.96); }
+    .fab.show { display: inline-flex; }
+
+    .fab .plus {
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    /* ── Filter chips ── */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-tabs::-webkit-scrollbar { display: none; }
+
+    .filter-tab {
+      padding: 10px 18px;
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      transition: all 0.15s;
+    }
+
+    .filter-tab.active {
+      background: var(--color-main);
+      color: #fff;
+      border-color: var(--color-main);
+    }
+
+    /* ── Case cards ── */
+    .case-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .case-card {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      cursor: pointer;
+      min-height: 80px;
+      transition: all 0.12s;
+      position: relative;
+    }
+
+    .case-card:active { background: #f5f5f0; transform: scale(0.995); }
+
+    .case-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .case-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text);
+      flex: 1;
+      line-height: 1.35;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-estimate { background: var(--color-success); }
+    .badge-invoice { background: var(--color-info); }
+    .badge-receipt { background: var(--color-warning); }
+    .badge-delivery { background: #64748b; }
+
+    .case-card-meta {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .case-card-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-main);
+      margin-top: 6px;
+    }
+
+    /* ── Doc type tabs ── */
+    .doc-type-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .doc-type-tabs::-webkit-scrollbar { display: none; }
+
+    .doc-type-tab {
+      padding: 10px 16px;
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .doc-type-tab.active {
+      border-color: var(--color-main);
+      color: var(--color-main);
+      background: var(--color-accent-light);
+    }
+
+    /* ── Form sections ── */
+    .form-section {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .form-section h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-section .section-hint {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .form-row.full { grid-template-columns: 1fr; }
+    .form-row:last-child { margin-bottom: 0; }
+
+    .form-group { display: flex; flex-direction: column; min-width: 0; }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--color-text);
+      font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      min-width: 0;
+      padding: 12px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius);
+      font-size: 16px;
+      min-height: 48px;
+      background: var(--color-surface);
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--color-main);
+      background: #fefff9;
+    }
+
+    .form-group input[readonly] {
+      background: #f7f7f2;
+      color: var(--color-text);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 88px;
+      line-height: 1.5;
+    }
+
+    /* ── Item cards (mobile-first, replaces table) ── */
+    .item-card {
+      background: #fafaf5;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .item-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .item-card-index {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+    }
+
+    .item-card-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .item-card-row.full { grid-template-columns: 1fr; }
+    .item-card-row:last-child { margin-bottom: 0; }
+
+    .item-card-field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .item-card-field input,
+    .item-card-field select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 16px;
+      min-height: 44px;
+      background: var(--color-surface);
+    }
+
+    .price-input-wrap {
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .price-input-wrap input {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .sign-toggle {
+      flex: 0 0 64px;
+      min-height: 44px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sign-toggle:active {
+      background: var(--color-surface-muted);
+    }
+
+    /* マイナスが入っているときは赤くして、状態を一目で分かるようにする */
+    .sign-toggle.is-neg {
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+      color: #fff;
+    }
+
+    .data-note {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+
+    .data-status {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      display: none;
+    }
+
+    .data-status.show { display: block; }
+    .data-status.info { background: var(--color-accent-soft); color: var(--color-text); }
+    .data-status.ng { background: #FBE9E7; color: var(--color-danger); }
+    .data-status.ok { background: #E6F4EA; color: var(--color-success); }
+
+    .data-sep {
+      height: 1px;
+      background: var(--color-border);
+      margin: 20px 0 16px;
+    }
+
+    .price-hint {
+      font-size: 11px;
+      color: var(--color-text-subtle);
+      margin-top: 4px;
+    }
+
+    .item-card.is-discount {
+      border-color: var(--color-danger);
+    }
+
+    .item-card.is-discount .item-card-amount {
+      color: var(--color-danger);
+    }
+
+    .item-card-amount {
+      background: var(--color-accent-light);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-main);
+      text-align: right;
+    }
+
+    .item-card-delete {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      color: var(--color-danger);
+      border: 1.5px solid var(--color-danger);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .item-card-delete:active { background: #fff5f5; }
+
+    /* ── Summary ── */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 14px;
+    }
+
+    .summary-row:last-child { border-bottom: none; }
+
+    .summary-row.total {
+      border-top: 2px solid var(--color-main);
+      border-bottom: none;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 14px 0;
+      margin-top: 4px;
+      color: var(--color-main);
+    }
+
+    .summary-row label { color: var(--color-text-muted); font-weight: 500; }
+
+    /* ── Buttons ── */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      padding: 14px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 44px;
+      transition: all 0.12s;
+    }
+
+    .btn-primary {
+      background: var(--color-main);
+      color: #fff;
+    }
+
+    .btn-primary:active { background: #1f3a0f; }
+
+    .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-main);
+      border: 1.5px solid var(--color-main);
+    }
+
+    .btn-secondary:active { background: var(--color-accent-light); }
+
+    .btn-accent {
+      background: var(--color-accent);
+      color: #fff;
+    }
+
+    .btn-accent:active { background: #3c711f; }
+
+    .btn-danger {
+      background: var(--color-surface);
+      color: var(--color-danger);
+      border: 1.5px solid var(--color-danger);
+    }
+
+    .btn-danger:active { background: #fff5f5; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1.5px dashed var(--color-border-strong);
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-ghost:active { background: #f5f5f0; }
+
+    .btn-add-row {
+      background: var(--color-surface);
+      color: var(--color-main);
+      border: 1.5px dashed var(--color-main);
+      width: 100%;
+      margin-top: 8px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-add-row:active { background: var(--color-accent-light); }
+
+    /* Save bar (sticky bottom) */
+    .save-bar {
+      position: fixed;
+      left: 0; right: 0;
+      bottom: calc(60px + var(--safe-bottom));
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.96);
+      border-top: 1.5px solid var(--color-border);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      gap: 8px;
+      z-index: 80;
+    }
+
+    .save-bar.show { display: flex; }
+
+    .save-bar .btn-primary { flex: 1; }
+
+    /* ── Master list ── */
+    .master-list {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .master-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      min-height: 56px;
+    }
+
+    .master-item:last-child { border-bottom: none; }
+
+    .master-info { flex: 1; min-width: 0; }
+
+    .master-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--color-text);
+      font-size: 15px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .master-details {
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    .master-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .btn-edit, .btn-delete {
+      padding: 8px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+      min-height: 44px;
+      min-width: 44px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-edit {
+      background: var(--color-surface);
+      color: var(--color-main);
+      border: 1.5px solid var(--color-main);
+    }
+
+    .btn-delete {
+      background: var(--color-surface);
+      color: var(--color-danger);
+      border: 1.5px solid var(--color-danger);
+    }
+
+    /* ── Modal ── */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .modal.center { align-items: center; padding: 16px; }
+
+    .modal.active {
+      display: flex;
+      animation: overlay 0.15s ease;
+    }
+
+    @keyframes overlay { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-content {
+      background: var(--color-surface);
+      border-radius: 20px 20px 0 0;
+      padding: 20px 18px calc(20px + var(--safe-bottom));
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      animation: slideUp 0.22s ease;
+    }
+
+    .modal.center .modal-content {
+      border-radius: 20px;
+      padding: 24px 20px;
+      max-width: 360px;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-grabber {
+      width: 40px;
+      height: 4px;
+      background: var(--color-border-strong);
+      border-radius: 2px;
+      margin: 0 auto 14px;
+    }
+
+    .modal-header {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--color-text);
+    }
+
+    .modal-body { margin-bottom: 16px; }
+
+    .modal-body p { color: var(--color-text-muted); font-size: 14px; line-height: 1.6; }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-footer button {
+      flex: 1;
+      min-height: 44px;
+    }
+
+    .master-picker-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 55vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: -4px -4px 12px;
+      padding: 4px;
+    }
+
+    .master-picker-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      background: var(--color-surface);
+      cursor: pointer;
+      min-height: 56px;
+      transition: all 0.12s;
+    }
+
+    .master-picker-item:active {
+      background: var(--color-accent-light);
+      border-color: var(--color-main);
+    }
+
+    .master-picker-info { flex: 1; min-width: 0; }
+
+    .master-picker-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+
+    .master-picker-price {
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    .master-picker-chevron {
+      color: var(--color-main);
+      font-weight: 700;
+    }
+
+    /* Customer picker style like master picker */
+    .customer-picker-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .customer-picker-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      background: var(--color-surface);
+      cursor: pointer;
+      min-height: 56px;
+      transition: all 0.12s;
+    }
+
+    .customer-picker-item.selected {
+      border-color: var(--color-main);
+      background: var(--color-accent-light);
+    }
+
+    .customer-picker-item:active {
+      background: var(--color-accent-light);
+    }
+
+    .customer-picker-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--color-text);
+    }
+
+    .customer-picker-meta {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    .customer-picker-check {
+      color: var(--color-main);
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    /* ── Empty / onboarding state ── */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      margin-top: 8px;
+    }
+
+    .empty-state-emoji {
+      font-size: 52px;
+      margin-bottom: 14px;
+      line-height: 1;
+    }
+
+    .empty-state-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 8px;
+    }
+
+    .empty-state-desc {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .empty-state-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      background: var(--color-main);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    .empty-state-btn:active { background: #1f3a0f; }
+
+    /* Onboarding step guide */
+    .onboarding {
+      background: linear-gradient(135deg, var(--color-accent-light) 0%, #fff 100%);
+      border: 1.5px solid var(--color-main);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .onboarding-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-main);
+      margin-bottom: 6px;
+    }
+
+    .onboarding-desc {
+      font-size: 13px;
+      color: var(--color-text);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .onboarding-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .onboarding-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      font-size: 13px;
+      border: 1px solid var(--color-border);
+    }
+
+    .onboarding-step.done {
+      color: var(--color-text-muted);
+      text-decoration: line-through;
+    }
+
+    .onboarding-step .bullet {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--color-main);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .onboarding-step.done .bullet {
+      background: var(--color-success);
+    }
+
+    .onboarding-cta {
+      width: 100%;
+      padding: 16px;
+      background: var(--color-main);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      min-height: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .onboarding-cta:active { background: #1f3a0f; }
+
+    /* Section title */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      top: calc(12px + var(--safe-top));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      width: calc(100% - 32px);
+      max-width: 400px;
+    }
+
+    .toast {
+      background: var(--color-success);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      animation: toastIn 0.22s ease, toastOut 0.3s ease 1.8s forwards;
+    }
+
+    .toast.info { background: var(--color-info); }
+    .toast.error { background: var(--color-danger); }
+    .toast.warn { background: var(--color-warning); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-12px); }
+    }
+
+    /* ── Loading spinner ── */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(247,247,245,0.75);
+      z-index: 1500;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+
+    .loading-overlay.active { display: flex; }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--color-border);
+      border-top-color: var(--color-main);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .inline-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+
+    /* ── Print document (same as preview) ── */
+    .preview-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .preview-toolbar button {
+      flex: 1 1 calc(50% - 4px);
+      min-width: 140px;
+    }
+
+    /* ══════════ 帳票（プレビュー & 印刷共通） ══════════ */
+
+    .print-viewport { width: 100%; overflow: hidden; }
+    .print-scaler { transform-origin: top left; }
+
+    .print-document {
+      width: 210mm;
+      min-height: 297mm;
+      box-sizing: border-box;
+      padding: 16mm 18mm 18mm;
+      background: #ffffff;
+      color: #111820;
+      font-family: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.65;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 18px rgba(10, 20, 40, .16);
+      --p-ink: #111820;
+      --p-soft: #4a5568;
+      --p-faint: #8a94a3;
+      --p-rule: #c9cfd8;
+      --p-rule-strong: #2b3648;
+      --p-navy: #0F1F3D;
+      --p-red: #b0392b;
+    }
+
+    .print-document .mono { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .print-doc-title { text-align: center; font-size: 17pt; font-weight: 700; letter-spacing: .55em; text-indent: .55em; color: var(--p-navy); margin: 0 0 1.5mm; }
+    .print-doc-title-en { text-align: center; font-size: 7.5pt; letter-spacing: .28em; text-indent: .28em; color: var(--p-faint); text-transform: uppercase; margin: 0 0 5mm; }
+    .print-meta { position: absolute; top: 16mm; right: 18mm; font-size: 8.5pt; color: var(--p-soft); text-align: right; line-height: 1.7; }
+    .print-meta b { color: var(--p-ink); font-weight: 600; }
+    .print-head { display: flex; justify-content: space-between; gap: 14mm; margin-bottom: 6mm; }
+    .print-to { flex: 1 1 auto; min-width: 0; padding-top: 1mm; }
+    .print-to-name { display: block; font-size: 15pt; font-weight: 700; border-bottom: 1.2pt solid var(--p-rule-strong); padding-bottom: 2.5mm; }
+    .print-to-name .print-hon { font-size: 11pt; font-weight: 500; margin-left: .6em; }
+    .print-to-addr { font-size: 8.5pt; color: var(--p-soft); margin-top: 2.5mm; line-height: 1.6; }
+    .print-lead { font-size: 9.5pt; color: var(--p-soft); margin-top: 3mm; }
+    .print-from { flex: 0 0 66mm; width: 66mm; font-size: 8.5pt; line-height: 1.6; color: var(--p-soft); position: relative; }
+    .print-from-name { font-size: 12pt; font-weight: 700; color: var(--p-ink); margin-bottom: 1.5mm; }
+    .print-from-reg { margin-top: 1.5mm; padding-top: 1.5mm; border-top: .5pt solid var(--p-rule); }
+    .print-seal { position: absolute; top: -2mm; right: 0; width: 17mm; height: 17mm; border: 1pt solid var(--p-red); border-radius: 1mm; color: var(--p-red); font-size: 7pt; line-height: 1.25; letter-spacing: .05em; text-align: center; display: flex; align-items: center; justify-content: center; opacity: .85; }
+    .print-total-box { display: flex; align-items: baseline; justify-content: space-between; gap: 8mm; border-top: 1.6pt solid var(--p-navy); border-bottom: 1.6pt solid var(--p-navy); background: #f7f8fa; padding: 3mm 4mm; margin: 0 0 2.5mm; }
+    .print-total-box-label { font-size: 9.5pt; font-weight: 600; letter-spacing: .08em; color: var(--p-navy); white-space: nowrap; }
+    .print-total-box-value { font-size: 18pt; font-weight: 700; color: var(--p-navy); }
+    .print-total-note { font-size: 8.5pt; color: var(--p-soft); text-align: right; margin: 0 0 5mm; }
+    .print-subject { font-size: 9.5pt; margin: 0 0 4.5mm; }
+    .print-subject .k { color: var(--p-faint); letter-spacing: .15em; margin-right: 1.2em; }
+    .print-table { width: 100%; border-collapse: collapse; font-size: 9pt; line-height: 1.45; margin-bottom: 4mm; }
+    .print-table thead th { background: transparent; border-top: .8pt solid var(--p-rule-strong); border-bottom: .8pt solid var(--p-rule-strong); padding: 2mm; font-size: 8.5pt; font-weight: 600; color: var(--p-soft); letter-spacing: .06em; text-align: right; white-space: nowrap; }
+    .print-table thead th.l { text-align: left; }
+    .print-table thead th.c { text-align: center; }
+    .print-table tbody td { padding: 1.7mm 2mm; border-bottom: .4pt solid var(--p-rule); text-align: right; vertical-align: top; }
+    .print-table tbody td.l { text-align: left; }
+    .print-table tbody td.c { text-align: center; color: var(--p-soft); font-size: 8.5pt; }
+    .print-table tbody tr.is-discount td { color: var(--p-red); }
+    .print-table tbody tr:last-child td { border-bottom: .8pt solid var(--p-rule-strong); }
+    .print-table tbody td.empty { text-align: center; color: var(--p-faint); }
+    .print-summary { margin-left: auto; width: 74mm; font-size: 9.5pt; margin-bottom: 6mm; }
+    .print-summary-row { display: flex; justify-content: space-between; gap: 4mm; padding: 1.2mm 0; }
+    .print-summary-row.sep { border-top: .4pt solid var(--p-rule); }
+    .print-summary-row .lbl { color: var(--p-soft); }
+    .print-summary-row.total { border-top: 1.2pt solid var(--p-rule-strong); margin-top: 1.2mm; padding-top: 2mm; font-size: 12pt; font-weight: 700; color: var(--p-navy); }
+    .print-summary-row.total .lbl { color: var(--p-navy); }
+    .print-foot { display: flex; gap: 8mm; margin-top: auto; }
+    .print-block { flex: 1 1 0; min-width: 0; font-size: 8.5pt; line-height: 1.6; white-space: pre-line; }
+    .print-block-title { font-size: 8pt; font-weight: 600; letter-spacing: .16em; color: var(--p-faint); border-bottom: .4pt solid var(--p-rule); padding-bottom: 1.2mm; margin-bottom: 2mm; white-space: normal; }
+    .print-block .strong { font-weight: 600; color: var(--p-ink); }
+    .print-block .fine { color: var(--p-faint); font-size: 8pt; }
+    .print-revenue-stamp { flex: 0 0 22mm; height: 26mm; align-self: flex-end; border: .6pt solid var(--p-rule); font-size: 7pt; color: var(--p-faint); line-height: 1.4; text-align: center; display: flex; align-items: center; justify-content: center; }
+
+    @page { size: A4; margin: 16mm 18mm 18mm; }
+
+    @media print {
+      html, body { height: auto !important; overflow: visible !important; background: #fff; }
+      .container { height: auto !important; display: block !important; }
+      .main-content { overflow: visible !important; height: auto !important; display: block !important; }
+      .content { padding: 0 !important; overflow: visible !important; height: auto !important; background: #fff !important; }
+      .screen.active { animation: none !important; }
+      .header, .bottom-nav, .fab, .preview-toolbar, .save-bar,
+      .toast-container, #loadingOverlay, .modal { display: none !important; }
+      .print-viewport { overflow: visible !important; height: auto !important; }
+      .print-scaler { transform: none !important; width: auto !important; }
+      .print-document { box-shadow: none; margin: 0; width: auto !important; padding: 0 !important; min-height: 245mm; }
+      .print-meta { top: 0; right: 0; }
+      .print-table thead { display: table-header-group; }
+      .print-table tr { break-inside: avoid; page-break-inside: avoid; }
+      .print-summary, .print-foot { break-inside: avoid; page-break-inside: avoid; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    /* Keyboard adjustments for mobile */
+    @supports (padding: max(0px)) {
+      .content {
+        padding-bottom: calc(120px + max(0px, env(keyboard-inset-height, 0px)));
+      }
+    }
+
+    /* Desktop-ish tweaks */
+    @media (min-width: 768px) {
+      .content { padding: 24px; padding-bottom: 120px; }
+      .form-row, .item-card-row { grid-template-columns: 1fr 1fr 1fr; }
+      .item-card-row.full, .form-row.full { grid-template-columns: 1fr; }
+      .case-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    }
+
+    /* Utilities */
+    .hide { display: none !important; }
+    .mono { font-variant-numeric: tabular-nums; }
+
+    .lucide {
+      width: var(--icon-size-md);
+      height: var(--icon-size-md);
+      stroke-width: 1.85;
+      flex-shrink: 0;
+    }
+
+    .icon-inline {
+      width: var(--icon-size-md);
+      height: var(--icon-size-md);
+      margin-right: var(--space-2);
+      vertical-align: -3px;
+    }
+
+    .icon-inline-lg {
+      width: var(--icon-size-lg);
+      height: var(--icon-size-lg);
+      margin-right: var(--space-2);
+      vertical-align: -4px;
+    }
+
+    .icon-nav {
+      width: 22px;
+      height: 22px;
+    }
+
+    .icon-empty {
+      width: 40px;
+      height: 40px;
+      color: var(--color-text-muted);
+    }
+
+    .icon-onboarding {
+      width: 18px;
+      height: 18px;
+      color: var(--color-brass);
+      margin-right: var(--space-2);
+      vertical-align: -3px;
+    }
+
+    .icon-check {
+      width: 14px;
+      height: 14px;
+      color: inherit;
+    }
+
+    .icon-chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-muted);
+    }
+
+    /* ====== ボタンコンポーネント ====== */
+    .btn {
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition-base);
+      font-size: var(--font-size-base);
+      font-family: inherit;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-focus-ring);
+    }
+
+    @media (hover: none) {
+      .btn:hover {
+        transform: none;
+      }
+    }
+
+    .btn.btn-primary {
+      background: var(--color-accent);
+      color: var(--color-text-on-accent);
+    }
+
+    .btn.btn-primary:hover {
+      background: var(--color-accent-hover);
+    }
+
+    .btn.btn-secondary {
+      background: var(--color-surface-muted);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .btn.btn-secondary:hover {
+      background: var(--color-border);
+    }
+
+    .btn.btn-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+
+    .btn.btn-danger:hover {
+      background: #a01a13;
+    }
+
+    .btn.btn-text {
+      background: transparent;
+      color: var(--color-accent);
+      padding: var(--space-2) var(--space-3);
+    }
+
+    .btn.btn-text:hover {
+      background: var(--color-accent-soft);
+    }
+
+    /* ====== フォームコンポーネント ====== */
+    .form-input {
+      padding: var(--space-3);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-base);
+      font-family: inherit;
+      background: var(--color-surface);
+      color: var(--color-text);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-focus-ring);
+    }
+
+    .form-section {
+      padding: var(--space-5) 0;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .form-section:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .form-section-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-4);
+      color: var(--color-text);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .required {
+      color: var(--color-danger);
+    }
+
+    /* ====== カードコンポーネント ====== */
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-border-strong);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+    }
+
+    .card-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+      margin: 0;
+    }
+
+    .card-badge {
+      display: inline-block;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      background: var(--color-accent-soft);
+      color: var(--color-accent);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .card-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+
+    .card-amount {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header" id="header">
+      <button class="header-back hide" id="headerBackBtn" aria-label="戻る">
+        <i data-lucide="chevron-left" class="icon-inline"></i><span>戻る</span>
+      </button>
+      <h1 id="pageTitle">書類管理</h1>
+    </header>
+
+    <div class="main-content">
+      <div class="content" id="contentArea">
+        <!-- Case List Screen -->
+        <div id="caseListScreen" class="screen active">
+          <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <button class="btn btn-secondary" id="issuerMenuBtn" style="font-size:13px; flex:1;">
+              <i data-lucide="building-2" class="icon-inline"></i>発行者設定
+            </button>
+            <button class="btn btn-secondary" id="dataMenuBtn" style="font-size:13px; flex:1;">
+              <i data-lucide="database" class="icon-inline"></i>データの管理
+            </button>
+          </div>
+          <div id="onboardingArea"></div>
+          <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-filter="all">すべて</button>
+            <button class="filter-tab" data-filter="estimate">見積</button>
+            <button class="filter-tab" data-filter="invoice">請求</button>
+            <button class="filter-tab" data-filter="receipt">領収</button>
+            <button class="filter-tab" data-filter="delivery">納品</button>
+          </div>
+          <div id="caseCardsContainer" class="case-cards"></div>
+        </div>
+
+        <!-- Case Detail Screen -->
+        <div id="caseDetailScreen" class="screen">
+          <div class="doc-type-tabs" id="docTypeTabs">
+            <button class="doc-type-tab" data-doc-type="estimate">御見積書</button>
+            <button class="doc-type-tab" data-doc-type="invoice">御請求書</button>
+            <button class="doc-type-tab" data-doc-type="receipt">領収書</button>
+            <button class="doc-type-tab" data-doc-type="delivery">納品書</button>
+          </div>
+
+          <div class="form-section">
+            <h3>基本情報</h3>
+            <div class="section-hint">案件の顧客と日付を入力してください。</div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>顧客 <span style="color:var(--color-danger)">*</span></label>
+                <select id="customerId">
+                  <option value="">選択してください</option>
+                </select>
+                <button type="button" id="pickCustomerBtn" class="btn-ghost" style="margin-top:8px; min-height:44px; padding:10px;">
+                  一覧から選ぶ
+                </button>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>タイトル</label>
+                <input type="text" id="caseTitle" placeholder="例: 草刈り作業 4月分" inputmode="text">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>発行日</label>
+                <input type="date" id="issueDate">
+              </div>
+              <div class="form-group">
+                <label>支払期限（任意）</label>
+                <input type="date" id="dueDate">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>明細</h3>
+            <div class="section-hint">作業内容を追加してください。単価マスターから選ぶと自動入力されます。</div>
+            <div id="itemsContainer"></div>
+            <button class="btn-add-row" id="addItemBtn"><i data-lucide="plus" class="icon-inline"></i>明細を追加</button>
+          </div>
+
+          <div class="form-section">
+            <h3>合計</h3>
+            <div class="summary-row">
+              <label>小計</label>
+              <span id="subtotal" class="mono">¥0</span>
+            </div>
+            <div class="summary-row">
+              <label>消費税 10%</label>
+              <span id="tax10" class="mono">¥0</span>
+            </div>
+            <div class="summary-row">
+              <label>消費税 8%</label>
+              <span id="tax8" class="mono">¥0</span>
+            </div>
+            <div class="summary-row total">
+              <label>合計</label>
+              <span id="grandTotal" class="mono">¥0</span>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>備考</h3>
+            <div class="form-group">
+              <textarea id="caseNotes" placeholder="特記事項があれば入力" inputmode="text"></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>振り込み先</h3>
+            <div class="form-group">
+              <select id="caseBankAccount">
+                <option value="">-- 表示しない --</option>
+              </select>
+            </div>
+            <button type="button" class="btn-ghost" id="manageBankBtn" style="width:100%; margin-top:6px; font-size:13px;">
+              <i data-lucide="settings" class="icon-inline"></i>振り込み先を管理する
+            </button>
+          </div>
+
+          <div class="button-group">
+            <button class="btn btn-secondary" id="previewBtn">書類を確認する</button>
+            <button class="btn-danger" id="deleteCaseBtn" style="display:none;">この案件を削除</button>
+          </div>
+        </div>
+
+        <!-- Customer Master Screen -->
+        <div id="customerScreen" class="screen">
+          <div style="margin-bottom:14px;">
+            <button class="btn btn-primary" id="addCustomerBtn"><i data-lucide="plus" class="icon-inline"></i>顧客を追加</button>
+          </div>
+          <div id="customerListContainer"></div>
+        </div>
+
+        <!-- Work Master Screen -->
+        <div id="masterScreen" class="screen">
+          <div style="margin-bottom:14px;">
+            <button class="btn btn-primary" id="addMasterBtn"><i data-lucide="plus" class="icon-inline"></i>作業単価を追加</button>
+          </div>
+          <div id="masterListContainer"></div>
+        </div>
+
+        <!-- Preview Screen -->
+        <div id="previewScreen" class="screen">
+          <div class="preview-toolbar">
+            <button class="btn-accent" id="printBtn"><i data-lucide="printer" class="icon-inline"></i>印刷 / PDFで保存</button>
+            <button class="btn btn-secondary" id="downloadPdfBtn"><i data-lucide="file-text" class="icon-inline"></i>PDFを直接ダウンロード</button>
+          </div>
+          <div id="printContainer" class="print-viewport"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save bar (shown on case detail) -->
+  <div class="save-bar" id="saveBar">
+    <button class="btn btn-primary" id="saveCaseBtn">保存する</button>
+  </div>
+
+  <nav class="bottom-nav">
+    <ul class="bottom-nav-items">
+      <li class="bottom-nav-item">
+        <a href="#/" class="nav-link active" data-screen="caseListScreen">
+          <div class="icon"><i data-lucide="list" class="icon-nav"></i></div>
+          <div>案件</div>
+        </a>
+      </li>
+      <li class="bottom-nav-item">
+        <a href="#/customers" class="nav-link" data-screen="customerScreen">
+          <div class="icon"><i data-lucide="users" class="icon-nav"></i></div>
+          <div>顧客</div>
+        </a>
+      </li>
+      <li class="bottom-nav-item">
+        <a href="#/masters" class="nav-link" data-screen="masterScreen">
+          <div class="icon"><i data-lucide="briefcase-business" class="icon-nav"></i></div>
+          <div>作業単価</div>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <button class="fab" id="fabBtn">
+    <i data-lucide="plus" class="icon-inline-lg"></i>
+    <span id="fabLabel">新規案件</span>
+  </button>
+
+  <!-- Modals -->
+  <div class="modal" id="customerModal">
+    <div class="modal-content">
+      <div class="modal-grabber"></div>
+      <div class="modal-header" id="customerModalTitle">顧客を追加</div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>顧客名 <span style="color:var(--color-danger)">*</span></label>
+          <input type="text" id="customerName" placeholder="例: 田中農園">
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>敬称</label>
+          <select id="customerHonorific">
+            <option value="様">様（個人）</option>
+            <option value="御中">御中（会社・団体）</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>住所</label>
+          <input type="text" id="customerAddress" placeholder="住所（任意）">
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>電話番号</label>
+          <input type="tel" id="customerTel" placeholder="電話番号（任意）" inputmode="tel">
+        </div>
+        <div class="form-group">
+          <label>備考</label>
+          <textarea id="customerNotes" placeholder="備考（任意）" style="min-height:60px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="customerModal">キャンセル</button>
+        <button class="btn btn-primary" id="saveCustomerBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="issuerModal">
+    <div class="modal-content">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">発行者設定</div>
+      <div class="modal-body">
+        <div class="data-note">ここで入力した内容が請求書・領収書に印刷されます。この情報はお使いの端末の中だけに保存されます。</div>
+        <div class="form-group" style="margin-bottom:12px;"><label>屋号・会社名 <span style="color:var(--color-danger)">*</span></label><input type="text" id="issuerCompany"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>郵便番号</label><input type="text" id="issuerZip"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>住所</label><input type="text" id="issuerAddress"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>電話番号</label><input type="tel" id="issuerTel" inputmode="tel"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>担当者名</label><input type="text" id="issuerStaff"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>インボイス登録番号</label><input type="text" id="issuerInvoiceNo"></div>
+        <div class="form-group"><label>印の文字</label><input type="text" id="issuerSeal" maxlength="4"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="issuerModal">キャンセル</button>
+        <button class="btn btn-primary" id="saveIssuerBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="dataModal">
+    <div class="modal-content">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">データの管理</div>
+      <div class="modal-body">
+        <button class="btn btn-primary" id="jsonExportBtn" style="width:100%;">
+          <i data-lucide="download" class="icon-inline"></i>バックアップを保存
+        </button>
+        <div class="data-note">顧客・作業単価・書類・振込先をまとめて1つのファイルに保存します。定期的に保存しておくと安心です。</div>
+
+        <button class="btn btn-secondary" id="jsonImportBtn" style="width:100%; margin-top:14px;">
+          <i data-lucide="upload" class="icon-inline"></i>バックアップから復元
+        </button>
+        <div class="data-note">保存したファイルを読み込みます。<strong>今のデータはすべて置き換わります。</strong></div>
+
+        <div class="data-sep"></div>
+
+        <button class="btn btn-secondary" id="csvExportBtn" style="width:100%;">
+          <i data-lucide="table" class="icon-inline"></i>CSVで書き出す
+        </button>
+        <div class="data-note">Excel などで一覧を見るためのファイルです。</div>
+
+        <button class="btn btn-secondary" id="csvImportBtn" style="width:100%; margin-top:14px;">
+          <i data-lucide="file-plus" class="icon-inline"></i>CSVから読み込む
+        </button>
+        <div class="data-note">以前このアプリで書き出したCSVから、顧客と書類を取り込みます。<strong>作業単価は含まれません。</strong></div>
+
+        <div id="dataStatus" class="data-status"></div>
+
+        <div class="data-sep"></div>
+
+        <button class="btn btn-secondary" id="pasteToggleBtn" style="width:100%;">
+          ファイルが選べないときは、貼り付けて読み込む
+        </button>
+        <div id="pasteArea" style="display:none; margin-top:10px;">
+          <textarea id="pasteInput" placeholder="CSV または バックアップ(JSON) の中身をすべて貼り付けてください" style="width:100%; min-height:120px; font-size:14px;"></textarea>
+          <button class="btn btn-primary" id="pasteRunBtn" style="width:100%; margin-top:8px;">貼り付けた内容を読み込む</button>
+          <div class="data-note">「ファイル」アプリでCSVを開き、すべて選択してコピーしてから貼り付けてください。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="dataModal">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="dataFileInput" style="position:absolute; left:-9999px; top:0; width:1px; height:1px; opacity:0;">
+
+  <div class="modal" id="masterModal">
+    <div class="modal-content">
+      <div class="modal-grabber"></div>
+      <div class="modal-header" id="masterModalTitle">作業単価を追加</div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>作業名 <span style="color:var(--color-danger)">*</span></label>
+          <input type="text" id="masterName" placeholder="例: 草刈り">
+        </div>
+        <div class="form-row full" style="margin-bottom:12px;">
+          <div class="form-group">
+            <label>単価 <span style="color:var(--color-danger)">*</span></label>
+            <div class="price-input-wrap">
+              <input type="text" id="masterPrice" placeholder="0" inputmode="decimal">
+              <button type="button" class="sign-toggle" id="masterPriceSignBtn" aria-label="プラスとマイナスを切り替える">±</button>
+            </div>
+            <div class="price-hint">値引きは金額を入れて ± をタップ</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>単位</label>
+            <input type="text" id="masterUnit" placeholder="例: a">
+          </div>
+          <div class="form-group">
+            <label>税率</label>
+            <select id="masterTaxRate">
+              <option value="10">10%</option>
+              <option value="8">8%（軽減税率）</option>
+              <option value="0">0%（非課税）</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="masterModal">キャンセル</button>
+        <button class="btn btn-primary" id="saveMasterBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer picker -->
+  <div class="modal" id="customerPickerModal">
+    <div class="modal-content">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">顧客を選ぶ</div>
+      <div class="modal-body">
+        <div id="customerPickerList" class="customer-picker-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="customerPickerModal">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Work master picker -->
+  <div class="modal" id="masterPickerModal">
+    <div class="modal-content">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">作業単価から選ぶ</div>
+      <div class="modal-body">
+        <div id="masterPickerList" class="master-picker-list"></div>
+        <button class="btn-ghost" id="skipMasterPickerBtn" style="width:100%;">マスターを使わずに入力する</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="masterPickerModal">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm modal -->
+  <div class="modal center" id="confirmModal">
+    <div class="modal-content">
+      <div class="modal-header" id="confirmTitle">確認</div>
+      <div class="modal-body">
+        <p id="confirmMessage">本当に削除しますか？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="confirmCancelBtn">キャンセル</button>
+        <button class="btn-danger" id="confirmOkBtn">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank account manage modal -->
+  <div class="modal center" id="bankModal">
+    <div class="modal-content">
+      <div class="modal-header">振り込み先を管理</div>
+      <div class="modal-body">
+        <div id="bankAccountList" style="margin-bottom:12px;"></div>
+        <button class="btn btn-primary" id="addBankBtn" style="width:100%;">
+          <i data-lucide="plus" class="icon-inline"></i>口座を追加
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="bankModal">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank account edit modal -->
+  <div class="modal center" id="bankEditModal">
+    <div class="modal-content">
+      <div class="modal-header" id="bankEditTitle">口座を追加</div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>口座名（表示名）<span style="color:var(--color-danger)">*</span></label>
+          <input type="text" id="bankEditLabel" placeholder="例: ○○農協">
+        </div>
+        <div class="form-group">
+          <label>口座情報 <span style="color:var(--color-danger)">*</span></label>
+          <textarea id="bankEditDetails" rows="3" placeholder="例: ○○支店&#10;普通 1234567 ヤマダタロウ"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="bankEditModal">キャンセル</button>
+        <button class="btn btn-primary" id="saveBankEditBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    console.log('index.html loaded');
+    console.log('Lucide library:', typeof window.lucide);
+
+    // ── Issuer info ──
+    // 個人情報はコードに書かない。「発行者設定」画面から入力し端末にだけ保存する。
+    const ISSUER_KEY = 'inv_issuer';
+    const ISSUER_DEFAULT = {
+      company: '', zip: '', address: '', tel: '', staff: '', invoice_no: '', seal_text: ''
+    };
+    let ISSUER = Object.assign({}, ISSUER_DEFAULT);
+
+    function loadIssuer() {
+      let stored = null;
+      try { stored = JSON.parse(localStorage.getItem(ISSUER_KEY) || 'null'); } catch (e) { stored = null; }
+      ISSUER = Object.assign({}, ISSUER_DEFAULT, (stored && typeof stored === 'object') ? stored : {});
+    }
+
+    function saveIssuerObj(obj) {
+      ISSUER = Object.assign({}, ISSUER_DEFAULT, obj);
+      try { localStorage.setItem(ISSUER_KEY, JSON.stringify(ISSUER)); return true; }
+      catch (e) { toast('保存できませんでした', 'error'); return false; }
+    }
+
+    function issuerIsEmpty() { return !String(ISSUER.company || '').trim(); }
+
+    // ── ID生成 ──
+    // cryptoのUUID APIは安全な文脈（https または localhost）でのみ利用できます。
+    // LAN上の http://192.168.x.x でも動作するよう、利用できない場合はUUID v4を生成します。
+    function uid() {
+      try {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+          return window.crypto.randomUUID();
+        }
+      } catch (e) { /* 利用できない場合はフォールバック */ }
+
+      const bytes = new Array(16);
+      if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+        const buf = new Uint8Array(16);
+        window.crypto.getRandomValues(buf);
+        for (let i = 0; i < 16; i++) bytes[i] = buf[i];
+      } else {
+        for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+      }
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const hex = bytes.map(b => b.toString(16).padStart(2, '0'));
+      return hex.slice(0, 4).join('') + '-' + hex.slice(4, 6).join('') + '-' +
+             hex.slice(6, 8).join('') + '-' + hex.slice(8, 10).join('') + '-' +
+             hex.slice(10, 16).join('');
+    }
+
+    // ── localStorage helpers ──
+    const LS = {
+      get(key) {
+        try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
+      },
+      set(key, data) {
+        try {
+          localStorage.setItem(key, JSON.stringify(data));
+          return true;
+        } catch (e) {
+          console.error('localStorage write failed:', key, e);
+          toast('保存できませんでした。ブラウザの保存容量が上限の可能性があります。', 'error');
+          return false;
+        }
+      }
+    };
+
+    // ── Bank accounts (localStorage) ──
+    const BANK_LS_KEY = 'inv_bank_accounts';
+    const BANK_SEL_KEY = 'inv_bank_sel_';
+    let bankAccounts = [];
+
+    function loadBankAccounts() {
+      try {
+        const stored = localStorage.getItem(BANK_LS_KEY);
+        bankAccounts = stored ? JSON.parse(stored) : [];
+      } catch (e) {
+        bankAccounts = [];
+      }
+    }
+
+    function saveBankAccounts() {
+      localStorage.setItem(BANK_LS_KEY, JSON.stringify(bankAccounts));
+    }
+
+    function renderBankSelect(selectedId) {
+      const sel = $('#caseBankAccount');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">-- 表示しない --</option>' +
+        bankAccounts.map(b =>
+          `<option value="${escapeHtml(b.id)}" ${b.id === selectedId ? 'selected' : ''}>${escapeHtml(b.label)}</option>`
+        ).join('');
+    }
+
+    function renderBankManageList() {
+      const list = $('#bankAccountList');
+      if (!list) return;
+      if (bankAccounts.length === 0) {
+        list.innerHTML = '<p style="color:var(--color-text-muted);font-size:14px;">口座が登録されていません</p>';
+        return;
+      }
+      list.innerHTML = bankAccounts.map((b, i) => `
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid var(--color-border);">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:14px;">${escapeHtml(b.label)}</div>
+            <div style="font-size:12px;color:var(--color-text-muted);white-space:pre-line;margin-top:2px;">${escapeHtml(b.details)}</div>
+          </div>
+          <button class="btn-ghost" onclick="editBankAccount(${i})" style="padding:6px 8px;flex-shrink:0;"><i data-lucide="pencil" class="icon-inline"></i></button>
+          <button class="btn-ghost" onclick="deleteBankAccount(${i})" style="padding:6px 8px;flex-shrink:0;color:var(--color-danger);"><i data-lucide="trash-2" class="icon-inline"></i></button>
+        </div>
+      `).join('');
+      hydrateIcons();
+    }
+
+    let editingBankIndex = -1;
+
+    function editBankAccount(i) {
+      editingBankIndex = i;
+      const b = bankAccounts[i];
+      $('#bankEditTitle').textContent = '口座を編集';
+      $('#bankEditLabel').value = b.label;
+      $('#bankEditDetails').value = b.details;
+      openModal('bankEditModal');
+    }
+
+    async function deleteBankAccount(i) {
+      const b = bankAccounts[i];
+      const ok = await confirmDialog({
+        title: '振り込み先の削除',
+        message: `「${b?.label || ''}」を削除します。`,
+        okText: '削除する'
+      });
+      if (!ok) return;
+      bankAccounts.splice(i, 1);
+      saveBankAccounts();
+      renderBankManageList();
+      const curSel = $('#caseBankAccount')?.value;
+      renderBankSelect(curSel);
+    }
+
+    document.getElementById('addBankBtn').addEventListener('click', () => {
+      editingBankIndex = -1;
+      document.getElementById('bankEditTitle').textContent = '口座を追加';
+      document.getElementById('bankEditLabel').value = '';
+      document.getElementById('bankEditDetails').value = '';
+      openModal('bankEditModal');
+    });
+
+    document.getElementById('saveBankEditBtn').addEventListener('click', () => {
+      const label = document.getElementById('bankEditLabel').value.trim();
+      const details = document.getElementById('bankEditDetails').value.trim();
+      if (!label) { toast('口座名を入力してください', 'warn'); return; }
+      if (!details) { toast('口座情報を入力してください', 'warn'); return; }
+      if (editingBankIndex >= 0) {
+        bankAccounts[editingBankIndex] = { ...bankAccounts[editingBankIndex], label, details };
+      } else {
+        bankAccounts.push({ id: Date.now().toString(), label, details });
+      }
+      saveBankAccounts();
+      closeModal('bankEditModal');
+      renderBankManageList();
+      const curSel = document.getElementById('caseBankAccount')?.value;
+      renderBankSelect(curSel);
+    });
+
+    document.getElementById('manageBankBtn').addEventListener('click', () => {
+      renderBankManageList();
+      openModal('bankModal');
+    });
+
+    // ── Document type info ──
+    const DOC_TYPES = {
+      estimate: {
+        label: '御見積書', badge: 'badge-estimate', short: '見積',
+        printTitle: '御見積書', en: 'Estimate', lead: '下記のとおりお見積り申し上げます。',
+        amountLabel: 'お見積金額（税込）', dateLabel: '見積有効期限', showBank: false, showStampBox: false
+      },
+      invoice: {
+        label: '御請求書', badge: 'badge-invoice', short: '請求',
+        printTitle: '請求書', en: 'Invoice', lead: '下記のとおりご請求申し上げます。',
+        amountLabel: 'ご請求金額（税込）', dateLabel: 'お支払期限', showBank: true, showStampBox: false
+      },
+      receipt: {
+        label: '領収書', badge: 'badge-receipt', short: '領収',
+        printTitle: '領収書', en: 'Receipt', lead: '下記正に領収いたしました。',
+        amountLabel: '領収金額（税込）', dateLabel: '', showBank: false, showStampBox: true
+      },
+      delivery: {
+        label: '納品書', badge: 'badge-delivery', short: '納品',
+        printTitle: '納品書', en: 'Delivery Note', lead: '下記のとおり納品いたしました。',
+        amountLabel: '納品金額（税込）', dateLabel: '', showBank: false, showStampBox: false
+      }
+    };
+
+    // ── Global state ──
+    const state = {
+      cases: [],
+      customers: [],
+      masters: [],
+      currentCase: null,
+      currentScreen: 'caseListScreen',
+      filter: 'all',
+      editingItems: [],
+      editingCustomerId: null,
+      editingMasterId: null,
+      itemPickerIndex: -1,
+      confirmResolve: null
+    };
+
+    // ── Helpers ──
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+    const yen = (n) => {
+      const v = Number(n) || 0;
+      return (v < 0 ? '-¥' : '¥') + Math.abs(v).toLocaleString('ja-JP');
+    };
+    const todayStr = () => {
+      const d = new Date();
+      const p = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    };
+    const fmtDate = (s) => {
+      if (!s) return '';
+      const d = new Date(s + 'T00:00:00');
+      if (Number.isNaN(d.getTime())) return s;
+      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+    };
+    // 帳票の明細用（「7月3日」形式）
+    const fmtDateShort = (s) => {
+      if (!s) return '';
+      const d = new Date(s + 'T00:00:00');
+      if (Number.isNaN(d.getTime())) return s;
+      return `${d.getMonth() + 1}月${d.getDate()}日`;
+    };
+
+    // 通貨記号なしの数値表記（明細表用）
+    const num = (n) => {
+      const v = Number(n) || 0;
+      return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('ja-JP');
+    };
+    const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+
+    // 全角マイナス・全角数字・カンマなどを半角に正規化する
+    function normalizeNum(v) {
+      return String(v ?? '')
+        .replace(/[−ー―‐–—▲△]/g, '-') // −ー―‐–—▲△ → -
+        .replace(/[０-９．－]/g, s =>
+          s === '－' ? '-' : String.fromCharCode(s.charCodeAt(0) - 0xFEE0)) // ０-９．－
+        .replace(/[,，、\s]/g, ''); // カンマ・読点・空白を除去
+    }
+
+    // 文字列を数値に。空や "-" だけのときは null を返す
+    function toNum(v) {
+      const s = normalizeNum(v);
+      if (s === '' || s === '-' || s === '.' || s === '-.') return null;
+      const n = parseFloat(s);
+      return Number.isNaN(n) ? null : n;
+    }
+
+    function showLoading(on) {
+      $('#loadingOverlay').classList.toggle('active', on);
+    }
+
+    function hydrateIcons() {
+      if (window.lucide?.createIcons) {
+        window.lucide.createIcons();
+        console.log('Lucide icons created');
+      } else {
+        console.warn('Lucide library is unavailable');
+      }
+    }
+
+    function toast(msg, kind = 'success') {
+      const el = document.createElement('div');
+      el.className = 'toast ' + (kind === 'success' ? '' : kind);
+      el.textContent = msg;
+      $('#toastContainer').appendChild(el);
+      setTimeout(() => el.remove(), 2200);
+    }
+
+    function openModal(id) {
+      $('#' + id).classList.add('active');
+    }
+    function closeModal(id) {
+      $('#' + id).classList.remove('active');
+    }
+
+    function confirmDialog({ title = '確認', message = 'よろしいですか？', okText = '削除する', okClass = 'btn-danger' }) {
+      return new Promise((resolve) => {
+        $('#confirmTitle').textContent = title;
+        $('#confirmMessage').textContent = message;
+        const okBtn = $('#confirmOkBtn');
+        okBtn.textContent = okText;
+        okBtn.className = okClass;
+        state.confirmResolve = resolve;
+        openModal('confirmModal');
+      });
+    }
+
+    $('#confirmOkBtn').addEventListener('click', () => {
+      closeModal('confirmModal');
+      if (state.confirmResolve) state.confirmResolve(true);
+      state.confirmResolve = null;
+    });
+    $('#confirmCancelBtn').addEventListener('click', () => {
+      closeModal('confirmModal');
+      if (state.confirmResolve) state.confirmResolve(false);
+      state.confirmResolve = null;
+    });
+
+    // Close-modal buttons
+    document.addEventListener('click', (e) => {
+      const closeTarget = e.target.closest('[data-close-modal]');
+      if (closeTarget) {
+        closeModal(closeTarget.getAttribute('data-close-modal'));
+      }
+      // click backdrop closes modal
+      if (e.target.classList && e.target.classList.contains('modal') && e.target.classList.contains('active')) {
+        e.target.classList.remove('active');
+      }
+    });
+
+    // ── Screen switching ──
+    function switchScreen(id, opts = {}) {
+      $$('.screen').forEach(s => s.classList.remove('active'));
+      $('#' + id).classList.add('active');
+      state.currentScreen = id;
+      $('#contentArea').scrollTop = 0;
+
+      const navMap = {
+        caseListScreen: { title: '書類管理', nav: 0, fab: true, fabLabel: '新規案件', back: false, saveBar: false },
+        caseDetailScreen: { title: state.currentCase?.id ? '案件を編集' : '新しい案件', nav: 0, fab: false, back: true, saveBar: true },
+        customerScreen: { title: '顧客', nav: 1, fab: false, back: false, saveBar: false },
+        masterScreen: { title: '作業単価', nav: 2, fab: false, back: false, saveBar: false },
+        previewScreen: { title: '書類プレビュー', nav: -1, fab: false, back: true, saveBar: false }
+      };
+      const cfg = navMap[id] || navMap.caseListScreen;
+      $('#pageTitle').textContent = cfg.title;
+      $('#fabBtn').classList.toggle('show', !!cfg.fab);
+      if (cfg.fab) $('#fabLabel').textContent = cfg.fabLabel || '新規';
+      $('#headerBackBtn').classList.toggle('hide', !cfg.back);
+      $('#saveBar').classList.toggle('show', !!cfg.saveBar);
+
+      // nav highlight
+      $$('.nav-link').forEach((a, i) => a.classList.toggle('active', i === cfg.nav));
+
+      if (opts.returnTo) state.returnTo = opts.returnTo;
+    }
+
+    // Nav links
+    $$('.nav-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const screen = link.getAttribute('data-screen');
+        if (screen === 'caseListScreen') loadCases();
+        if (screen === 'customerScreen') renderCustomerList();
+        if (screen === 'masterScreen') renderMasterList();
+        switchScreen(screen);
+      });
+    });
+
+    $('#headerBackBtn').addEventListener('click', () => {
+      if (state.currentScreen === 'previewScreen') {
+        switchScreen('caseDetailScreen');
+      } else if (state.currentScreen === 'caseDetailScreen') {
+        loadCases();
+        switchScreen('caseListScreen');
+      }
+    });
+
+    // ── FAB ──
+    $('#fabBtn').addEventListener('click', () => {
+      if (state.currentScreen === 'caseListScreen') {
+        startNewCase();
+      }
+    });
+
+    // ── Data loading ──
+    function loadAll() {
+      showLoading(true);
+      try {
+        loadBankAccounts();
+        loadCustomers();
+        loadMasters();
+        loadCases();
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function loadCustomers() {
+      state.customers = LS.get('inv_customers').sort((a, b) => {
+        return (a.name || '').localeCompare(b.name || '', 'ja');
+      });
+    }
+
+    function loadMasters() {
+      state.masters = LS.get('inv_work_masters').sort((a, b) => {
+        return (a.name || '').localeCompare(b.name || '', 'ja');
+      });
+    }
+
+    function loadCases() {
+      const cases = LS.get('inv_cases');
+      state.cases = cases.map(c => {
+        const items = c.items || [];
+        const totals = computeTotals(items);
+        return { ...c, _total: totals.total };
+      }).sort((a, b) => {
+        if (b.issue_date !== a.issue_date) return (b.issue_date || '').localeCompare(a.issue_date || '');
+        return (b.created_at || '').localeCompare(a.created_at || '');
+      });
+      renderCaseList();
+    }
+
+    // ══════════ データの管理（バックアップ / 復元 / CSV） ══════════
+    let dataImportMode = null;
+
+    $('#dataMenuBtn').addEventListener('click', () => {
+      setDataStatus('', 'info');
+      $('#pasteArea').style.display = 'none';
+      $('#pasteInput').value = '';
+      openModal('dataModal');
+      hydrateIcons();
+    });
+    $('#issuerMenuBtn').addEventListener('click', () => {
+      $('#issuerCompany').value = ISSUER.company || '';
+      $('#issuerZip').value = ISSUER.zip || '';
+      $('#issuerAddress').value = ISSUER.address || '';
+      $('#issuerTel').value = ISSUER.tel || '';
+      $('#issuerStaff').value = ISSUER.staff || '';
+      $('#issuerInvoiceNo').value = ISSUER.invoice_no || '';
+      $('#issuerSeal').value = ISSUER.seal_text || '';
+      openModal('issuerModal');
+    });
+    $('#saveIssuerBtn').addEventListener('click', () => {
+      if (!$('#issuerCompany').value.trim()) { toast('屋号・会社名を入力してください', 'warn'); return; }
+      const saved = saveIssuerObj({
+        company: $('#issuerCompany').value.trim(), zip: $('#issuerZip').value.trim(),
+        address: $('#issuerAddress').value.trim(), tel: $('#issuerTel').value.trim(),
+        staff: $('#issuerStaff').value.trim(), invoice_no: $('#issuerInvoiceNo').value.trim(),
+        seal_text: $('#issuerSeal').value.trim()
+      });
+      if (!saved) return;
+      closeModal('issuerModal');
+      toast('保存しました');
+      renderOnboarding();
+    });
+    $('#jsonExportBtn').addEventListener('click', exportBackup);
+    $('#csvExportBtn').addEventListener('click', exportCsv);
+    $('#jsonImportBtn').addEventListener('click', () => pickFile('json'));
+    $('#csvImportBtn').addEventListener('click', () => pickFile('csv'));
+
+    function pickFile(mode) {
+      dataImportMode = mode;
+      const el = $('#dataFileInput');
+      el.value = '';
+      el.click();
+    }
+
+    function setDataStatus(msg, kind) {
+      const el = $('#dataStatus');
+      if (!el) return;
+      el.textContent = msg || '';
+      el.className = 'data-status' + (msg ? ' show ' + (kind || 'info') : '');
+    }
+
+    // iOS Safari では file.text() が使えないことがあるため FileReader を使う
+    function readFileText(file) {
+      return new Promise((resolve, reject) => {
+        try {
+          const fr = new FileReader();
+          fr.onload = () => resolve(String(fr.result == null ? '' : fr.result));
+          fr.onerror = () => reject(fr.error || new Error('読み取りに失敗'));
+          fr.readAsText(file, 'UTF-8');
+        } catch (e) { reject(e); }
+      });
+    }
+
+    $('#dataFileInput').addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) { setDataStatus('ファイルが選ばれませんでした。', 'ng'); return; }
+      setDataStatus(`「${file.name}」を読み込んでいます…`, 'info');
+      let text = '';
+      try {
+        text = await readFileText(file);
+      } catch (err) {
+        console.error(err);
+        setDataStatus(`「${file.name}」を開けませんでした。\niCloudにしか無いファイルだと開けないことがあります。「ファイル」アプリで一度そのファイルを開いてから、もう一度試してください。`, 'ng');
+        return;
+      }
+      if (!text || !text.trim()) {
+        setDataStatus(`「${file.name}」は中身が空でした。（${file.size} バイト）`, 'ng');
+        return;
+      }
+      setDataStatus(`「${file.name}」を読みました（${text.length}文字）。内容を確認しています…`, 'info');
+      await runImport(text);
+    });
+
+    $('#pasteToggleBtn').addEventListener('click', () => {
+      const el = $('#pasteArea');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    });
+
+    $('#pasteRunBtn').addEventListener('click', async () => {
+      const text = $('#pasteInput').value;
+      if (!text.trim()) { setDataStatus('貼り付けの内容が空です。', 'ng'); return; }
+      setDataStatus(`貼り付けた内容を確認しています（${text.length}文字）…`, 'info');
+      await runImport(text);
+    });
+
+    // 中身を見て CSV / バックアップ を自動判定する
+    async function runImport(text) {
+      const head = text.replace(/^﻿/, '').trimStart();
+      if (head.charAt(0) === '{') {
+        await importBackup(text);
+      } else if (head.indexOf('案件ID') === 0) {
+        await importCsv(text);
+      } else if (dataImportMode === 'json') {
+        await importBackup(text);
+      } else {
+        await importCsv(text);
+      }
+    }
+
+    function downloadFile(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // ── JSON バックアップ ──
+    function collectBankSelection() {
+      const out = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf(BANK_SEL_KEY) === 0) out[k] = localStorage.getItem(k);
+      }
+      return out;
+    }
+
+    function exportBackup() {
+      const payload = {
+        app: 'shorui-kanri',
+        version: 1,
+        exported_at: new Date().toISOString(),
+        customers: LS.get('inv_customers'),
+        masters: LS.get('inv_work_masters'),
+        cases: LS.get('inv_cases'),
+        issuer: ISSUER,
+        bank_accounts: bankAccounts,
+        bank_selection: collectBankSelection()
+      };
+      downloadFile(JSON.stringify(payload, null, 2),
+        `書類管理バックアップ_${todayStr()}.json`, 'application/json');
+      closeModal('dataModal');
+      toast('バックアップを保存しました');
+    }
+
+    async function importBackup(text) {
+      let data = null;
+      try { data = JSON.parse(text); } catch (e) { data = null; }
+      if (!data || !Array.isArray(data.cases) || !Array.isArray(data.customers)) {
+        setDataStatus('バックアップファイルとして読み取れませんでした。\n先頭：「' + String(text).slice(0, 40) + '」', 'ng');
+        return;
+      }
+      const nc = data.customers.length;
+      const nm = Array.isArray(data.masters) ? data.masters.length : 0;
+      const ns = data.cases.length;
+      const ok = await confirmDialog({
+        title: 'バックアップから復元',
+        message: `顧客${nc}件・作業単価${nm}件・書類${ns}件を読み込みます。今このアプリに入っているデータはすべて置き換わります。よろしいですか？`,
+        okText: '復元する'
+      });
+      if (!ok) { setDataStatus('復元を取りやめました。', 'info'); return; }
+      if (data.issuer && typeof data.issuer === 'object') saveIssuerObj(data.issuer);
+      LS.set('inv_customers', data.customers);
+      LS.set('inv_work_masters', Array.isArray(data.masters) ? data.masters : []);
+      LS.set('inv_cases', data.cases);
+      if (Array.isArray(data.bank_accounts) && data.bank_accounts.length) {
+        bankAccounts = data.bank_accounts;
+        saveBankAccounts();
+      }
+      if (data.bank_selection && typeof data.bank_selection === 'object') {
+        Object.keys(data.bank_selection).forEach(k => {
+          if (k.indexOf(BANK_SEL_KEY) === 0) localStorage.setItem(k, data.bank_selection[k]);
+        });
+      }
+      setDataStatus(`復元しました。顧客${nc}件・作業単価${nm}件・書類${ns}件。`, 'ok');
+      loadAll();
+      renderCustomerList();
+      renderMasterList();
+      closeModal('dataModal');
+      switchScreen('caseListScreen');
+      toast('復元しました');
+    }
+
+    // ── CSV 読み込み ──
+    function parseCsv(text) {
+      const s = String(text).replace(/^﻿/, '');
+      const rows = [];
+      let row = [], field = '', inQuotes = false;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (inQuotes) {
+          if (ch === '"') {
+            if (s[i + 1] === '"') { field += '"'; i++; }
+            else inQuotes = false;
+          } else field += ch;
+        } else if (ch === '"') {
+          inQuotes = true;
+        } else if (ch === ',') {
+          row.push(field); field = '';
+        } else if (ch === '\n') {
+          row.push(field); rows.push(row); row = []; field = '';
+        } else if (ch !== '\r') {
+          field += ch;
+        }
+      }
+      if (field !== '' || row.length) { row.push(field); rows.push(row); }
+      return rows.filter(r => r.some(v => String(v).trim() !== ''));
+    }
+
+    const DOC_LABEL_TO_TYPE = {
+      '御見積書': 'estimate', '見積書': 'estimate', '見積': 'estimate',
+      '御請求書': 'invoice', '請求書': 'invoice', '請求': 'invoice',
+      '領収書': 'receipt', '領収': 'receipt',
+      '納品書': 'delivery', '納品': 'delivery'
+    };
+
+    async function importCsv(text) {
+      const rows = parseCsv(text);
+      if (rows.length < 2) {
+        setDataStatus('中身が読み取れませんでした。行が足りません。', 'ng');
+        return;
+      }
+      const head = rows[0].map(h => String(h).trim());
+      if (head[0] !== '案件ID') {
+        setDataStatus('このアプリで書き出したCSVではないようです。\n1行目の先頭：「' + (head[0] || '(空)') + '」\n（「案件ID」で始まる必要があります）', 'ng');
+        return;
+      }
+      const col = (r, name) => {
+        const i = head.indexOf(name);
+        return i < 0 ? '' : String(r[i] ?? '').trim();
+      };
+
+      const parsed = [];
+      let cur = null;
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const id = col(r, '案件ID');
+        if (id) {
+          cur = {
+            id,
+            title: col(r, 'タイトル'),
+            doc_type: DOC_LABEL_TO_TYPE[col(r, '書類種別')] || 'invoice',
+            customerName: col(r, '顧客名'),
+            issue_date: col(r, '発行日'),
+            due_date: col(r, '支払期限'),
+            notes: col(r, '備考'),
+            items: []
+          };
+          parsed.push(cur);
+        }
+        if (!cur) continue;
+        const itemName = col(r, '作業名');
+        const itemNo = col(r, '明細番号');
+        if (!itemNo && !itemName) continue;
+        const rateRaw = col(r, '税率').replace('%', '');
+        cur.items.push({
+          id: uid(),
+          name: itemName,
+          unit_price: toNum(col(r, '単価')) ?? 0,
+          qty: toNum(col(r, '数量')) ?? 0,
+          unit: col(r, '単位'),
+          tax_rate: rateRaw === '' ? 10 : (Number(rateRaw) || 0),
+          item_date: col(r, '明細日付'),
+          sort_order: cur.items.length
+        });
+      }
+
+      if (parsed.length === 0) {
+        setDataStatus('書類が1件も見つかりませんでした。CSVの中身をご確認ください。', 'ng');
+        return;
+      }
+
+      const customers = LS.get('inv_customers');
+      const byName = new Map(customers.map(c => [String(c.name || ''), c]));
+      const newCustomers = [];
+      for (const p of parsed) {
+        const nm = p.customerName;
+        if (nm && !byName.has(nm)) {
+          const c = { id: uid(), name: nm, honorific: '様', address: null, tel: null, notes: null };
+          customers.push(c);
+          byName.set(nm, c);
+          newCustomers.push(nm);
+        }
+      }
+
+      const existing = LS.get('inv_cases');
+      const existingIds = new Set(existing.map(c => c.id));
+      const toAdd = parsed.filter(p => !existingIds.has(p.id));
+      const skipped = parsed.length - toAdd.length;
+
+      if (toAdd.length === 0) {
+        setDataStatus('取り込む書類はありませんでした。すべて登録済みです。', 'info');
+        return;
+      }
+
+      const ok = await confirmDialog({
+        title: 'CSVから読み込み',
+        message: `書類${toAdd.length}件・新しい顧客${newCustomers.length}件を追加します。`
+          + (skipped ? `（すでに登録済みの${skipped}件は飛ばします）` : '')
+          + ' 今あるデータは消えません。よろしいですか？',
+        okText: '読み込む',
+        okClass: 'btn btn-primary'
+      });
+      if (!ok) { setDataStatus('読み込みを取りやめました。', 'info'); return; }
+
+      let num = nextCaseNumber(existing);
+      for (const p of toAdd) {
+        existing.push({
+          id: p.id,
+          customer_id: (byName.get(p.customerName) || {}).id || '',
+          title: p.title,
+          doc_type: p.doc_type,
+          issue_date: p.issue_date || todayStr(),
+          due_date: p.due_date || '',
+          notes: p.notes || '',
+          number: num++,
+          created_at: new Date().toISOString(),
+          items: p.items
+        });
+      }
+
+      LS.set('inv_customers', customers);
+      LS.set('inv_cases', existing);
+      setDataStatus(`${toAdd.length}件の書類と${newCustomers.length}件の顧客を読み込みました。`, 'ok');
+      loadAll();
+      renderCustomerList();
+      closeModal('dataModal');
+      switchScreen('caseListScreen');
+      toast(`${toAdd.length}件の書類を読み込みました`);
+    }
+
+    function exportCsv() {
+      const cases = LS.get('inv_cases');
+      const customerById = Object.fromEntries(state.customers.map(c => [c.id, c]));
+
+      const rows = [];
+      rows.push([
+        '案件ID', 'タイトル', '書類種別', '顧客名', '発行日', '支払期限',
+        '明細番号', '明細日付', '作業名', '単価', '数量', '単位', '税率', '明細金額',
+        '小計', '消費税10%', '消費税8%', '合計', '備考'
+      ].join(','));
+
+      for (const c of cases) {
+        const customer = customerById[c.customer_id];
+        const docLabel = { estimate: '御見積書', invoice: '御請求書', receipt: '領収書', delivery: '納品書' }[c.doc_type] || c.doc_type;
+        const items = c.items || [];
+        const totals = computeTotals(items);
+
+        if (items.length === 0) {
+          rows.push([
+            c.id, csvEscape(c.title || ''), docLabel,
+            csvEscape(customer?.name || ''),
+            c.issue_date || '', c.due_date || '',
+            '', '', '', '', '', '', '', '',
+            totals.sub, totals.t10, totals.t8, totals.total,
+            csvEscape(c.notes || '')
+          ].join(','));
+        } else {
+          items.forEach((it, idx) => {
+            const amt = amountFor(it);
+            rows.push([
+              idx === 0 ? c.id : '',
+              idx === 0 ? csvEscape(c.title || '') : '',
+              idx === 0 ? docLabel : '',
+              idx === 0 ? csvEscape(customer?.name || '') : '',
+              idx === 0 ? (c.issue_date || '') : '',
+              idx === 0 ? (c.due_date || '') : '',
+              idx + 1,
+              it.item_date || '',
+              csvEscape(it.name || ''),
+              it.unit_price || 0,
+              it.qty || 0,
+              csvEscape(it.unit || ''),
+              (it.tax_rate ?? 10) + '%',
+              amt,
+              idx === 0 ? totals.sub : '',
+              idx === 0 ? totals.t10 : '',
+              idx === 0 ? totals.t8 : '',
+              idx === 0 ? totals.total : '',
+              idx === 0 ? csvEscape(c.notes || '') : ''
+            ].join(','));
+          });
+        }
+      }
+
+      const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `書類管理_${todayStr()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      closeModal('dataModal');
+      toast('CSVを保存しました');
+    }
+
+    function csvEscape(str) {
+      const s = String(str || '');
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }
+
+    // ── Onboarding ──
+    function renderOnboarding() {
+      const host = $('#onboardingArea');
+      if (issuerIsEmpty()) {
+        host.innerHTML = `
+          <div class="onboarding">
+            <div class="onboarding-title"><i data-lucide="building-2" class="icon-onboarding"></i>発行者設定が必要です</div>
+            <div class="onboarding-desc">帳票に表示する発行者情報を登録してください。</div>
+            <button class="onboarding-cta" onclick="openIssuerModal()"><i data-lucide="settings-2" class="icon-inline"></i>まず発行者設定をしてください</button>
+          </div>`;
+        hydrateIcons();
+        return;
+      }
+      const hasCustomers = state.customers.length > 0;
+      const hasMasters = state.masters.length > 0;
+      const hasCases = state.cases.length > 0;
+
+      if (hasCases) { host.innerHTML = ''; return; }
+
+      if (!hasCustomers) {
+        host.innerHTML = `
+          <div class="onboarding">
+            <div class="onboarding-title"><i data-lucide="file-text" class="icon-onboarding"></i>はじめに</div>
+            <div class="onboarding-desc">3ステップで最初の書類を作成しましょう。</div>
+            <div class="onboarding-steps">
+              <div class="onboarding-step"><div class="bullet">1</div><div>顧客を登録する</div></div>
+              <div class="onboarding-step"><div class="bullet">2</div><div>作業単価を登録する</div></div>
+              <div class="onboarding-step"><div class="bullet">3</div><div>案件を作成する</div></div>
+            </div>
+            <button class="onboarding-cta" onclick="switchScreen('customerScreen'); renderCustomerList();"><i data-lucide="user-round" class="icon-inline"></i>まず顧客を登録しましょう</button>
+          </div>`;
+      } else if (!hasMasters) {
+        host.innerHTML = `
+          <div class="onboarding">
+            <div class="onboarding-title"><i data-lucide="file-text" class="icon-onboarding"></i>次のステップ</div>
+            <div class="onboarding-desc">作業単価を登録すると、明細入力が楽になります。</div>
+            <div class="onboarding-steps">
+              <div class="onboarding-step done"><div class="bullet"><i data-lucide="check" class="icon-check"></i></div><div>顧客を登録する</div></div>
+              <div class="onboarding-step"><div class="bullet">2</div><div>作業単価を登録する</div></div>
+              <div class="onboarding-step"><div class="bullet">3</div><div>案件を作成する</div></div>
+            </div>
+            <button class="onboarding-cta" onclick="switchScreen('masterScreen'); renderMasterList();"><i data-lucide="briefcase-business" class="icon-inline"></i>次に作業単価を登録しましょう</button>
+          </div>`;
+      } else {
+        host.innerHTML = `
+          <div class="onboarding">
+            <div class="onboarding-title"><i data-lucide="sparkles" class="icon-onboarding"></i>準備完了</div>
+            <div class="onboarding-desc">最初の案件を作成しましょう。</div>
+            <div class="onboarding-steps">
+              <div class="onboarding-step done"><div class="bullet"><i data-lucide="check" class="icon-check"></i></div><div>顧客を登録する</div></div>
+              <div class="onboarding-step done"><div class="bullet"><i data-lucide="check" class="icon-check"></i></div><div>作業単価を登録する</div></div>
+              <div class="onboarding-step"><div class="bullet">3</div><div>案件を作成する</div></div>
+            </div>
+            <button class="onboarding-cta" onclick="startNewCase()"><i data-lucide="file-text" class="icon-inline"></i>最初の案件を作成しましょう</button>
+          </div>`;
+      }
+      hydrateIcons();
+    }
+
+    // ── Case list ──
+    $$('#filterTabs .filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        $$('#filterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        state.filter = tab.getAttribute('data-filter');
+        renderCaseList();
+      });
+    });
+
+    function renderCaseList() {
+      renderOnboarding();
+      const host = $('#caseCardsContainer');
+      const filter = state.filter;
+      const list = filter === 'all' ? state.cases : state.cases.filter(c => c.doc_type === filter);
+
+      if (list.length === 0) {
+        const hasAny = state.cases.length > 0;
+        host.innerHTML = hasAny ? `
+          <div class="empty-state">
+            <div class="empty-state-emoji"><i data-lucide="search" class="icon-empty"></i></div>
+            <div class="empty-state-title">該当する書類がありません</div>
+            <div class="empty-state-desc">フィルターを切り替えて確認してください。</div>
+          </div>` : '';
+        hydrateIcons();
+        return;
+      }
+
+      const customerById = Object.fromEntries(state.customers.map(c => [c.id, c]));
+      host.innerHTML = list.map(c => {
+        const type = DOC_TYPES[c.doc_type] || DOC_TYPES.invoice;
+        const customer = customerById[c.customer_id];
+        return `
+          <div class="case-card" data-case-id="${escapeHtml(c.id)}">
+            <div class="case-card-header">
+              <div class="case-card-title">${escapeHtml(c.title || '（無題）')}</div>
+              <span class="badge ${type.badge}">${type.short}</span>
+            </div>
+            <div class="case-card-meta">${escapeHtml(customer?.name || '顧客未設定')}・${escapeHtml(c.issue_date || '')}</div>
+            <div class="case-card-amount mono">${yen(c._total || 0)}</div>
+          </div>`;
+      }).join('');
+
+      host.querySelectorAll('.case-card').forEach(card => {
+        card.addEventListener('click', () => openCase(card.getAttribute('data-case-id')));
+      });
+      hydrateIcons();
+    }
+
+    // ── Case editing ──
+    function startNewCase() {
+      state.currentCase = {
+        id: null,
+        customer_id: '',
+        title: '',
+        doc_type: 'invoice',
+        issue_date: todayStr(),
+        due_date: '',
+        notes: ''
+      };
+      state.editingItems = [];
+      renderCaseDetail();
+      switchScreen('caseDetailScreen');
+    }
+
+    function openCase(id) {
+      const allCases = LS.get('inv_cases');
+      const c = allCases.find(x => x.id === id);
+      if (!c) { toast('案件が見つかりません', 'error'); return; }
+      state.currentCase = c;
+      state.editingItems = (c.items || [])
+        .slice()
+        .sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0))
+        .map(it => ({
+          id: it.id,
+          name: it.name || '',
+          unit_price: Number(it.unit_price) || 0,
+          qty: Number(it.qty ?? 1),
+          unit: it.unit || '',
+          tax_rate: Number(it.tax_rate ?? 10),
+          item_date: it.item_date || ''
+        }));
+      renderCaseDetail();
+      switchScreen('caseDetailScreen');
+    }
+
+    function renderCaseDetail() {
+      const c = state.currentCase || {};
+
+      // customer dropdown
+      const selCustomer = $('#customerId');
+      selCustomer.innerHTML = '<option value="">選択してください</option>' +
+        state.customers.map(cu => `<option value="${escapeHtml(cu.id)}" ${String(cu.id) === String(c.customer_id) ? 'selected' : ''}>${escapeHtml(cu.name)}</option>`).join('');
+
+      $('#caseTitle').value = c.title || '';
+      $('#issueDate').value = c.issue_date || todayStr();
+      $('#dueDate').value = c.due_date || '';
+      $('#caseNotes').value = c.notes || '';
+
+      // bank account selector
+      const savedBankId = c.id ? (localStorage.getItem(BANK_SEL_KEY + c.id) || '') : (bankAccounts[0]?.id || '');
+      renderBankSelect(savedBankId);
+
+      // doc type tabs
+      $$('#docTypeTabs .doc-type-tab').forEach(t => {
+        t.classList.toggle('active', t.getAttribute('data-doc-type') === (c.doc_type || 'invoice'));
+      });
+
+      renderItems();
+
+      $('#deleteCaseBtn').style.display = c.id ? 'block' : 'none';
+    }
+
+    $$('#docTypeTabs .doc-type-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        $$('#docTypeTabs .doc-type-tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        if (state.currentCase) state.currentCase.doc_type = t.getAttribute('data-doc-type');
+      });
+    });
+
+    $('#pickCustomerBtn').addEventListener('click', openCustomerPicker);
+
+    function openCustomerPicker() {
+      const list = $('#customerPickerList');
+      if (state.customers.length === 0) {
+        list.innerHTML = `<div class="empty-state" style="padding:20px;">
+          <div class="empty-state-desc">顧客が登録されていません。</div>
+          <button class="btn btn-primary" onclick="closeModal('customerPickerModal'); switchScreen('customerScreen'); renderCustomerList();">顧客を登録する</button>
+        </div>`;
+      } else {
+        const currentId = String($('#customerId').value || '');
+        list.innerHTML = state.customers.map(cu => `
+          <div class="customer-picker-item ${String(cu.id) === currentId ? 'selected' : ''}" data-id="${escapeHtml(cu.id)}">
+            <div>
+              <div class="customer-picker-name">${escapeHtml(cu.name)}</div>
+              ${cu.address ? `<div class="customer-picker-meta">${escapeHtml(cu.address)}</div>` : ''}
+            </div>
+            ${String(cu.id) === currentId ? '<span class="customer-picker-check"><i data-lucide="check" class="icon-check"></i></span>' : ''}
+          </div>`).join('');
+        list.querySelectorAll('.customer-picker-item').forEach(el => {
+          el.addEventListener('click', () => {
+            $('#customerId').value = el.getAttribute('data-id');
+            closeModal('customerPickerModal');
+          });
+        });
+      }
+      openModal('customerPickerModal');
+      hydrateIcons();
+    }
+
+    // ── Items ──
+    function renderItems() {
+      const host = $('#itemsContainer');
+      if (state.editingItems.length === 0) {
+        host.innerHTML = `<div style="text-align:center; color:var(--color-text-muted); padding:18px 8px; font-size:13px;">
+          まだ明細がありません。「明細を追加」から追加してください。
+        </div>`;
+        updateTotals();
+        return;
+      }
+      host.innerHTML = state.editingItems.map((it, i) => `
+        <div class="item-card" data-index="${i}">
+          <div class="item-card-header">
+            <div class="item-card-index">明細 ${i + 1}</div>
+            <button class="item-card-delete" data-action="delete" data-index="${i}">削除</button>
+          </div>
+          <div class="item-card-row full">
+            <div class="item-card-field">
+              <label>日付</label>
+              <input type="date" data-field="item_date" value="${escapeHtml(it.item_date || '')}">
+            </div>
+          </div>
+          <div class="item-card-row full">
+            <div class="item-card-field">
+              <label>作業名</label>
+              <input type="text" data-field="name" value="${escapeHtml(it.name)}" placeholder="例: 草刈り">
+            </div>
+          </div>
+          <div class="item-card-row full">
+            <div class="item-card-field">
+              <label>単価 (円)</label>
+              <div class="price-input-wrap">
+                <input type="text" data-field="unit_price" value="${it.unit_price || ''}" inputmode="decimal" placeholder="0">
+                <button type="button" class="sign-toggle" data-action="toggle-sign" aria-label="プラスとマイナスを切り替える">±</button>
+              </div>
+              <div class="price-hint">値引きは金額を入れて ± をタップ</div>
+            </div>
+          </div>
+          <div class="item-card-row">
+            <div class="item-card-field">
+              <label>数量</label>
+              <input type="text" data-field="qty" value="${it.qty ?? ''}" inputmode="decimal" placeholder="1">
+            </div>
+            <div class="item-card-field">
+              <label>単位</label>
+              <input type="text" data-field="unit" value="${escapeHtml(it.unit)}" placeholder="a / 式 など">
+            </div>
+          </div>
+          <div class="item-card-row full">
+            <div class="item-card-field">
+              <label>税率</label>
+              <select data-field="tax_rate">
+                <option value="10" ${it.tax_rate == 10 ? 'selected' : ''}>10%</option>
+                <option value="8"  ${it.tax_rate == 8  ? 'selected' : ''}>8%</option>
+                <option value="0"  ${it.tax_rate == 0  ? 'selected' : ''}>0%</option>
+              </select>
+            </div>
+          </div>
+          <div class="item-card-row full">
+            <div class="item-card-amount mono">小計 ${yen(amountFor(it))}</div>
+          </div>
+        </div>`).join('');
+
+      host.querySelectorAll('.item-card').forEach(card => {
+        const idx = Number(card.getAttribute('data-index'));
+        card.querySelectorAll('[data-field]').forEach(inp => {
+          inp.addEventListener('input', () => {
+            const field = inp.getAttribute('data-field');
+            let val = inp.value;
+            if (field === 'unit_price' || field === 'qty') {
+              const n = toNum(val);
+              // 入力途中（"" や "-"）は文字列のまま保持し、確定した数値だけ変換する
+              val = (n === null) ? normalizeNum(val) : n;
+            } else if (field === 'tax_rate') {
+              val = Number(val) || 0;
+            }
+            state.editingItems[idx][field] = val;
+            if (['unit_price', 'qty', 'tax_rate'].includes(field)) {
+              refreshItemAmount(card, idx);
+            }
+          });
+        });
+        const signBtn = card.querySelector('[data-action="toggle-sign"]');
+        if (signBtn) {
+          signBtn.addEventListener('click', () => {
+            const priceInput = card.querySelector('[data-field="unit_price"]');
+            const n = toNum(priceInput.value) ?? 0;
+            const next = -n;
+            priceInput.value = String(next);
+            state.editingItems[idx].unit_price = next;
+            refreshItemAmount(card, idx);
+          });
+        }
+        const delBtn = card.querySelector('[data-action="delete"]');
+        if (delBtn) {
+          delBtn.addEventListener('click', async () => {
+            const ok = await confirmDialog({ title: '明細の削除', message: `明細 ${idx + 1} を削除しますか？`, okText: '削除する' });
+            if (ok) {
+              state.editingItems.splice(idx, 1);
+              renderItems();
+            }
+          });
+        }
+        card.classList.toggle('is-discount', amountFor(state.editingItems[idx]) < 0);
+        syncSignBtn(card.querySelector('[data-action="toggle-sign"]'), state.editingItems[idx].unit_price);
+      });
+      updateTotals();
+    }
+
+    function syncSignBtn(btn, value) {
+      if (btn) btn.classList.toggle('is-neg', (toNum(value) ?? 0) < 0);
+    }
+
+    function refreshItemAmount(card, idx) {
+      const it = state.editingItems[idx];
+      const amt = card.querySelector('.item-card-amount');
+      if (amt) amt.textContent = '小計 ' + yen(amountFor(it));
+      card.classList.toggle('is-discount', amountFor(it) < 0);
+      syncSignBtn(card.querySelector('[data-action="toggle-sign"]'), it.unit_price);
+      updateTotals();
+    }
+
+    function amountFor(it) {
+      const p = toNum(it.unit_price) ?? 0;
+      const q = toNum(it.qty) ?? 0;
+      return p * q;
+    }
+
+    function updateTotals() {
+      const t = computeTotals(state.editingItems);
+      $('#subtotal').textContent = yen(t.sub);
+      $('#tax10').textContent = yen(t.t10);
+      $('#tax8').textContent = yen(t.t8);
+      $('#grandTotal').textContent = yen(t.total);
+    }
+
+    $('#addItemBtn').addEventListener('click', () => {
+      if (state.masters.length > 0) {
+        openMasterPicker();
+      } else {
+        addBlankItem();
+      }
+    });
+
+    function addBlankItem() {
+      state.editingItems.push({ name: '', unit_price: 0, qty: 1, unit: '', tax_rate: 10, item_date: todayStr() });
+      renderItems();
+    }
+
+    function openMasterPicker() {
+      const list = $('#masterPickerList');
+      list.innerHTML = state.masters.map(m => `
+        <div class="master-picker-item" data-id="${escapeHtml(m.id)}">
+          <div class="master-picker-info">
+            <div class="master-picker-name">${escapeHtml(m.name)}</div>
+            <div class="master-picker-price">${yen(m.unit_price)}${m.unit ? ' / ' + escapeHtml(m.unit) : ''}・税率 ${m.tax_rate ?? 10}%</div>
+          </div>
+          <span class="master-picker-chevron"><i data-lucide="chevron-right" class="icon-chevron"></i></span>
+        </div>`).join('');
+      list.querySelectorAll('.master-picker-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.getAttribute('data-id');
+          const m = state.masters.find(x => String(x.id) === String(id));
+          if (m) {
+            state.editingItems.push({
+              name: m.name || '',
+              unit_price: toNum(m.unit_price) ?? 0,
+              qty: 1,
+              unit: m.unit || '',
+              tax_rate: Number(m.tax_rate ?? 10),
+              item_date: todayStr()
+            });
+            renderItems();
+          }
+          closeModal('masterPickerModal');
+        });
+      });
+      openModal('masterPickerModal');
+      hydrateIcons();
+    }
+
+    $('#skipMasterPickerBtn').addEventListener('click', () => {
+      closeModal('masterPickerModal');
+      addBlankItem();
+    });
+
+    // ── Save / delete case ──
+    $('#saveCaseBtn').addEventListener('click', saveCase);
+    $('#deleteCaseBtn').addEventListener('click', deleteCase);
+    $('#previewBtn').addEventListener('click', () => {
+      if (!validateCaseInputs(true)) return;
+      saveCase({ silent: true });
+      if (!state.currentCase?.id) return;
+      openPreview();
+    });
+
+    function collectCaseInputs() {
+      const c = state.currentCase || {};
+      c.customer_id = $('#customerId').value || null;
+      c.title = $('#caseTitle').value.trim();
+      c.issue_date = $('#issueDate').value || todayStr();
+      c.due_date = $('#dueDate').value || null;
+      c.notes = $('#caseNotes').value.trim();
+      const activeType = $('#docTypeTabs .doc-type-tab.active');
+      c.doc_type = activeType ? activeType.getAttribute('data-doc-type') : 'invoice';
+      return c;
+    }
+
+    function computeTotals(items) {
+      const base = { 10: 0, 8: 0, 0: 0 };
+      let sub = 0;
+      for (const it of items || []) {
+        const amt = amountFor(it);
+        sub += amt;
+        const r = Number(it.tax_rate ?? 10);
+        if (base[r] === undefined) base[r] = 0;
+        base[r] += amt;
+      }
+      // 税率ごとの小計に対して、1回だけ端数処理（0方向に切り捨て）
+      // toFixed(6) は浮動小数点の誤差（例: 23200.000000000004）で1円ズレるのを防ぐため
+      const taxOf = (b, rate) => Math.trunc(Number((b * rate / 100).toFixed(6)));
+      const t10 = taxOf(base[10], 10);
+      const t8  = taxOf(base[8], 8);
+      return {
+        sub,
+        base10: base[10],
+        base8:  base[8],
+        base0:  base[0],
+        t10, t8,
+        total: sub + t10 + t8
+      };
+    }
+
+    function validateCaseInputs(silent = false) {
+      const c = collectCaseInputs();
+      if (!c.customer_id) {
+        if (!silent) toast('顧客を選択してください', 'warn');
+        return false;
+      }
+      return true;
+    }
+
+    function nextCaseNumber(allCases) {
+      const max = (allCases || []).reduce(
+        (m, x) => Math.max(m, Number(x.number) || 0), 0);
+      return max + 1;
+    }
+
+    // 帳票に印字する書類番号（例: 2026-0007）
+    function docNumber(c) {
+      if (!c || !c.number) return '';
+      const y = String(c.issue_date || todayStr()).slice(0, 4);
+      return `${y}-${String(c.number).padStart(4, '0')}`;
+    }
+
+    function saveCase(opts = {}) {
+      const silent = opts?.silent === true;
+      const c = collectCaseInputs();
+      if (!c.customer_id) {
+        toast('顧客を選択してください', 'warn');
+        return;
+      }
+
+      showLoading(true);
+      try {
+        const allCases = LS.get('inv_cases');
+        const items = state.editingItems.map((it, i) => ({
+          id: it.id || uid(),
+          name: it.name || '',
+          unit_price: toNum(it.unit_price) ?? 0,
+          qty: toNum(it.qty) ?? 0,
+          unit: it.unit || '',
+          tax_rate: Number(it.tax_rate ?? 10),
+          item_date: it.item_date || '',
+          sort_order: i
+        }));
+
+        let savedCase = null;
+        if (c.id) {
+          const idx = allCases.findIndex(x => x.id === c.id);
+          if (idx !== -1) {
+            allCases[idx] = { ...allCases[idx], ...c, items };
+            savedCase = allCases[idx];
+          }
+        } else {
+          savedCase = {
+            ...c,
+            id: uid(),
+            number: nextCaseNumber(allCases),
+            created_at: new Date().toISOString(),
+            items
+          };
+          allCases.unshift(savedCase);
+        }
+
+        if (!savedCase) {
+          savedCase = {
+            ...c,
+            id: c.id || uid(),
+            number: nextCaseNumber(allCases),
+            created_at: c.created_at || new Date().toISOString(),
+            items
+          };
+          allCases.unshift(savedCase);
+        }
+
+        state.currentCase = savedCase;
+        localStorage.setItem(BANK_SEL_KEY + savedCase.id, $('#caseBankAccount').value || '');
+        LS.set('inv_cases', allCases);
+        if (!silent) toast('保存しました');
+        loadCases();
+        if (state.currentScreen === 'caseDetailScreen') renderCaseDetail();
+      } catch (err) {
+        console.error('saveCase error:', err);
+        toast('保存に失敗しました', 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function deleteCase() {
+      if (!state.currentCase?.id) return;
+      const ok = await confirmDialog({
+        title: '案件の削除',
+        message: `「${state.currentCase.title || '（無題）'}」を削除します。この操作は取り消せません。`,
+        okText: '削除する'
+      });
+      if (!ok) return;
+      showLoading(true);
+      try {
+        const allCases = LS.get('inv_cases').filter(x => x.id !== state.currentCase.id);
+        LS.set('inv_cases', allCases);
+        localStorage.removeItem(BANK_SEL_KEY + state.currentCase.id);
+        toast('削除しました');
+        state.currentCase = null;
+        state.editingItems = [];
+        loadCases();
+        switchScreen('caseListScreen');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // ── Customer master ──
+    function renderCustomerList() {
+      const host = $('#customerListContainer');
+      if (state.customers.length === 0) {
+        host.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-emoji"><i data-lucide="user-round" class="icon-empty"></i></div>
+            <div class="empty-state-title">まだ顧客がいません</div>
+            <div class="empty-state-desc">まずは顧客を登録しましょう。<br>書類作成の宛先として使われます。</div>
+            <button class="empty-state-btn" onclick="openCustomerModal()"><i data-lucide="plus" class="icon-inline"></i>顧客を追加</button>
+          </div>`;
+        hydrateIcons();
+        return;
+      }
+      host.innerHTML = `<div class="master-list">${
+        state.customers.map(c => `
+          <div class="master-item">
+            <div class="master-info">
+              <div class="master-name">${escapeHtml(c.name)}</div>
+              <div class="master-details">${escapeHtml([c.address, c.tel].filter(Boolean).join(' / ')) || '―'}</div>
+            </div>
+            <div class="master-actions">
+              <button class="btn-edit" data-id="${escapeHtml(c.id)}" data-action="edit">編集</button>
+              <button class="btn-delete" data-id="${escapeHtml(c.id)}" data-action="delete">削除</button>
+            </div>
+          </div>`).join('')
+      }</div>`;
+      host.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          const act = btn.getAttribute('data-action');
+          if (act === 'edit') editCustomer(id);
+          if (act === 'delete') deleteCustomer(id);
+        });
+      });
+      hydrateIcons();
+    }
+
+    $('#addCustomerBtn').addEventListener('click', () => openCustomerModal());
+
+    function openCustomerModal(customer) {
+      state.editingCustomerId = customer?.id || null;
+      $('#customerModalTitle').textContent = customer ? '顧客を編集' : '顧客を追加';
+      $('#customerName').value = customer?.name || '';
+      $('#customerHonorific').value = customer?.honorific || '様';
+      $('#customerAddress').value = customer?.address || '';
+      $('#customerTel').value = customer?.tel || '';
+      $('#customerNotes').value = customer?.notes || '';
+      openModal('customerModal');
+    }
+    window.openCustomerModal = openCustomerModal;
+
+    function editCustomer(id) {
+      const c = state.customers.find(x => String(x.id) === String(id));
+      if (c) openCustomerModal(c);
+    }
+
+    $('#saveCustomerBtn').addEventListener('click', () => {
+      const name = $('#customerName').value.trim();
+      if (!name) { toast('顧客名を入力してください', 'warn'); return; }
+      const payload = {
+        name,
+        honorific: $('#customerHonorific').value || '様',
+        address: $('#customerAddress').value.trim() || null,
+        tel: $('#customerTel').value.trim() || null,
+        notes: $('#customerNotes').value.trim() || null
+      };
+      const customers = LS.get('inv_customers');
+      if (state.editingCustomerId) {
+        const idx = customers.findIndex(x => x.id === state.editingCustomerId);
+        if (idx !== -1) customers[idx] = { ...customers[idx], ...payload };
+      } else {
+        customers.push({ id: uid(), ...payload });
+      }
+      LS.set('inv_customers', customers);
+      closeModal('customerModal');
+      toast('保存しました');
+      loadCustomers();
+      renderCustomerList();
+      renderOnboarding();
+    });
+
+    async function deleteCustomer(id) {
+      const c = state.customers.find(x => String(x.id) === String(id));
+      const ok = await confirmDialog({
+        title: '顧客の削除',
+        message: `「${c?.name || ''}」を削除します。`,
+        okText: '削除する'
+      });
+      if (!ok) return;
+      const customers = LS.get('inv_customers').filter(x => x.id !== id);
+      LS.set('inv_customers', customers);
+      toast('削除しました');
+      loadCustomers();
+      renderCustomerList();
+      renderOnboarding();
+    }
+
+    // ── Master (work prices) ──
+    function renderMasterList() {
+      const host = $('#masterListContainer');
+      if (state.masters.length === 0) {
+        host.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-emoji"><i data-lucide="briefcase-business" class="icon-empty"></i></div>
+            <div class="empty-state-title">作業単価が未登録です</div>
+            <div class="empty-state-desc">よく使う作業の単価を登録しておくと、明細入力が楽になります。</div>
+            <button class="empty-state-btn" onclick="openMasterModal()"><i data-lucide="plus" class="icon-inline"></i>作業単価を追加</button>
+          </div>`;
+        hydrateIcons();
+        return;
+      }
+      host.innerHTML = `<div class="master-list">${
+        state.masters.map(m => `
+          <div class="master-item">
+            <div class="master-info">
+              <div class="master-name">${escapeHtml(m.name)}</div>
+              <div class="master-details">${yen(m.unit_price)}${m.unit ? ' / ' + escapeHtml(m.unit) : ''}・税率 ${m.tax_rate ?? 10}%</div>
+            </div>
+            <div class="master-actions">
+              <button class="btn-edit" data-id="${escapeHtml(m.id)}" data-action="edit">編集</button>
+              <button class="btn-delete" data-id="${escapeHtml(m.id)}" data-action="delete">削除</button>
+            </div>
+          </div>`).join('')
+      }</div>`;
+      host.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          const act = btn.getAttribute('data-action');
+          if (act === 'edit') editMaster(id);
+          if (act === 'delete') deleteMaster(id);
+        });
+      });
+      hydrateIcons();
+    }
+
+    $('#addMasterBtn').addEventListener('click', () => openMasterModal());
+
+    function openMasterModal(master) {
+      state.editingMasterId = master?.id || null;
+      $('#masterModalTitle').textContent = master ? '作業単価を編集' : '作業単価を追加';
+      $('#masterName').value = master?.name || '';
+      $('#masterPrice').value = master?.unit_price ?? '';
+      syncSignBtn($('#masterPriceSignBtn'), master?.unit_price);
+      $('#masterUnit').value = master?.unit || '';
+      $('#masterTaxRate').value = String(master?.tax_rate ?? 10);
+      openModal('masterModal');
+    }
+    window.openMasterModal = openMasterModal;
+
+    function editMaster(id) {
+      const m = state.masters.find(x => String(x.id) === String(id));
+      if (m) openMasterModal(m);
+    }
+
+    $('#masterPriceSignBtn').addEventListener('click', () => {
+      const el = $('#masterPrice');
+      el.value = String(-(toNum(el.value) ?? 0));
+      syncSignBtn($('#masterPriceSignBtn'), el.value);
+    });
+
+    $('#masterPrice').addEventListener('input', () => {
+      syncSignBtn($('#masterPriceSignBtn'), $('#masterPrice').value);
+    });
+
+    $('#saveMasterBtn').addEventListener('click', () => {
+      const name = $('#masterName').value.trim();
+      if (!name) { toast('作業名を入力してください', 'warn'); return; }
+      const price = toNum($('#masterPrice').value) ?? 0;
+      const payload = {
+        name,
+        unit_price: price,
+        unit: $('#masterUnit').value.trim() || null,
+        tax_rate: Number($('#masterTaxRate').value) || 10
+      };
+      const masters = LS.get('inv_work_masters');
+      if (state.editingMasterId) {
+        const idx = masters.findIndex(x => x.id === state.editingMasterId);
+        if (idx !== -1) masters[idx] = { ...masters[idx], ...payload };
+      } else {
+        masters.push({ id: uid(), ...payload });
+      }
+      LS.set('inv_work_masters', masters);
+      closeModal('masterModal');
+      toast('保存しました');
+      loadMasters();
+      renderMasterList();
+      renderOnboarding();
+    });
+
+    async function deleteMaster(id) {
+      const m = state.masters.find(x => String(x.id) === String(id));
+      const ok = await confirmDialog({
+        title: '作業単価の削除',
+        message: `「${m?.name || ''}」を削除しますか？`,
+        okText: '削除する'
+      });
+      if (!ok) return;
+      const masters = LS.get('inv_work_masters').filter(x => x.id !== id);
+      LS.set('inv_work_masters', masters);
+      toast('削除しました');
+      loadMasters();
+      renderMasterList();
+      renderOnboarding();
+    }
+
+    // ── Preview ──
+    function openPreview() {
+      const c = state.currentCase;
+      if (!c?.id) { toast('先に保存してください', 'warn'); return; }
+      const customer = state.customers.find(x => String(x.id) === String(c.customer_id));
+
+      // 振り込み先の取得・保存
+      const selectedBankId = $('#caseBankAccount')?.value || '';
+      if (c.id) localStorage.setItem(BANK_SEL_KEY + c.id, selectedBankId);
+      const selectedBank = bankAccounts.find(b => b.id === selectedBankId);
+
+      const type = DOC_TYPES[c.doc_type] || DOC_TYPES.invoice;
+      const items = state.editingItems;
+      const t = computeTotals(items);
+
+      const honorific = customer?.honorific || '様';
+      const no = docNumber(c);
+      const showBank = type.showBank && !!selectedBank;
+      const showStamp = type.showStampBox && t.total >= 50000;
+
+      const rows = items.map(it => {
+        const amt = amountFor(it);
+        const r = Number(it.tax_rate ?? 10);
+        return `<tr class="${amt < 0 ? 'is-discount' : ''}">
+          <td class="c">${it.item_date ? fmtDateShort(it.item_date) : ''}</td>
+          <td class="l">${escapeHtml(it.name)}</td>
+          <td class="mono">${num(toNum(it.unit_price) ?? 0)}</td>
+          <td class="mono">${num(toNum(it.qty) ?? 0)}</td>
+          <td class="c">${escapeHtml(it.unit || '')}</td>
+          <td class="c">${r}%</td>
+          <td class="mono">${num(amt)}</td>
+        </tr>`;
+      }).join('');
+
+      const sumRows = [];
+      if (t.base10 !== 0) {
+        sumRows.push(`<div class="print-summary-row"><span class="lbl">小計（10%対象）</span><span class="mono">${yen(t.base10)}</span></div>`);
+        sumRows.push(`<div class="print-summary-row"><span class="lbl">消費税（10%）</span><span class="mono">${yen(t.t10)}</span></div>`);
+      }
+      if (t.base8 !== 0) {
+        sumRows.push(`<div class="print-summary-row ${t.base10 !== 0 ? 'sep' : ''}"><span class="lbl">小計（8%対象）</span><span class="mono">${yen(t.base8)}</span></div>`);
+        sumRows.push(`<div class="print-summary-row"><span class="lbl">消費税（8%）</span><span class="mono">${yen(t.t8)}</span></div>`);
+      }
+      if (t.base0 !== 0) {
+        sumRows.push(`<div class="print-summary-row sep"><span class="lbl">非課税・不課税</span><span class="mono">${yen(t.base0)}</span></div>`);
+      }
+      if (sumRows.length === 0) {
+        sumRows.push(`<div class="print-summary-row"><span class="lbl">小計</span><span class="mono">${yen(t.sub)}</span></div>`);
+      }
+
+      const html = `
+        <div class="print-scaler" id="printScaler">
+        <div class="print-document" id="printDocument">
+          ${no || c.issue_date ? `
+          <div class="print-meta">
+            ${no ? `No. <b>${escapeHtml(no)}</b><br>` : ''}
+            発行日 <b>${fmtDate(c.issue_date)}</b>
+          </div>` : ''}
+
+          <div class="print-doc-title">${escapeHtml(type.printTitle)}</div>
+          <div class="print-doc-title-en">${escapeHtml(type.en)}</div>
+
+          <div class="print-head">
+            <div class="print-to">
+              <span class="print-to-name">${escapeHtml(customer?.name || '')}<span class="print-hon">${escapeHtml(honorific)}</span></span>
+              ${customer?.address ? `<div class="print-to-addr">${escapeHtml(customer.address)}</div>` : ''}
+              <div class="print-lead">${escapeHtml(type.lead)}</div>
+            </div>
+            <div class="print-from">
+              ${ISSUER.seal_text ? `<div class="print-seal">${escapeHtml(ISSUER.seal_text)}<br>印</div>` : ''}
+              ${ISSUER.company ? `<div class="print-from-name">${escapeHtml(ISSUER.company)}</div>` : ''}
+              ${ISSUER.zip ? `${escapeHtml(ISSUER.zip)}<br>` : ''}
+              ${ISSUER.address ? `${escapeHtml(ISSUER.address)}<br>` : ''}
+              ${ISSUER.tel ? `${escapeHtml(ISSUER.tel)}<br>` : ''}
+              ${ISSUER.staff ? escapeHtml(ISSUER.staff) : ''}
+              ${ISSUER.invoice_no ? `<div class="print-from-reg">登録番号　${escapeHtml(ISSUER.invoice_no)}</div>` : ''}
+            </div>
+          </div>
+
+          <div class="print-total-box">
+            <span class="print-total-box-label">${escapeHtml(type.amountLabel)}</span>
+            <span class="print-total-box-value mono">${yen(t.total)}</span>
+          </div>
+          ${type.dateLabel && c.due_date
+            ? `<div class="print-total-note">${escapeHtml(type.dateLabel)}　${fmtDate(c.due_date)}</div>`
+            : `<div style="height:5mm"></div>`}
+
+          ${c.title ? `<div class="print-subject"><span class="k">${c.doc_type === 'receipt' ? '但し' : '件名'}</span>${escapeHtml(c.title)}${c.doc_type === 'receipt' ? '　として' : ''}</div>` : ''}
+
+          <table class="print-table">
+            <thead>
+              <tr>
+                <th class="c" style="width:15%">日付</th>
+                <th class="l" style="width:31%">作業内容</th>
+                <th style="width:14%">単価</th>
+                <th style="width:9%">数量</th>
+                <th class="c" style="width:8%">単位</th>
+                <th class="c" style="width:8%">税率</th>
+                <th style="width:15%">金額</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || '<tr><td class="empty" colspan="7">明細がありません</td></tr>'}
+            </tbody>
+          </table>
+
+          <div class="print-summary">
+            ${sumRows.join('')}
+            <div class="print-summary-row total"><span class="lbl">合計</span><span class="mono">${yen(t.total)}</span></div>
+          </div>
+
+          <div class="print-foot">
+            ${showStamp ? `<div class="print-revenue-stamp">収入印紙<br>貼付欄</div>` : ''}
+            ${showBank ? `
+            <div class="print-block">
+              <div class="print-block-title">お振込先</div>
+              <span class="strong">${escapeHtml(selectedBank.label)}</span>
+${escapeHtml(selectedBank.details)}
+              <div class="fine">※恐れ入りますが振込手数料は御社にてご負担願います。</div>
+            </div>` : ''}
+            ${c.notes ? `
+            <div class="print-block">
+              <div class="print-block-title">備考</div>
+${escapeHtml(c.notes)}
+            </div>` : ''}
+          </div>
+        </div>
+        </div>`;
+
+      $('#printContainer').innerHTML = html;
+      switchScreen('previewScreen');
+      fitPreview();
+      hydrateIcons();
+    }
+
+    function fitPreview() {
+      const host = $('#printContainer');
+      const scaler = $('#printScaler');
+      const doc = $('#printDocument');
+      if (!host || !scaler || !doc) return;
+      scaler.style.transform = 'none';
+      scaler.style.width = doc.offsetWidth + 'px';
+      const scale = Math.min(1, host.clientWidth / doc.offsetWidth);
+      scaler.style.transform = `scale(${scale})`;
+      host.style.height = (doc.offsetHeight * scale) + 'px';
+    }
+
+    window.addEventListener('resize', () => {
+      if (state.currentScreen === 'previewScreen') fitPreview();
+    });
+
+    $('#printBtn').addEventListener('click', () => {
+      const scaler = $('#printScaler');
+      const prev = scaler ? scaler.style.transform : '';
+      if (scaler) scaler.style.transform = 'none';
+      window.print();
+      setTimeout(() => { if (scaler) scaler.style.transform = prev; }, 300);
+    });
+
+    // ── PDF export ──
+    $('#downloadPdfBtn').addEventListener('click', async () => {
+      const node = $('#printDocument');
+      if (!node) { toast('プレビューが見つかりません', 'error'); return; }
+      const scaler = $('#printScaler');
+      const prevTransform = scaler ? scaler.style.transform : '';
+      showLoading(true);
+      try {
+        if (scaler) scaler.style.transform = 'none';
+        await new Promise(r => setTimeout(r, 50));
+        const canvas = await html2canvas(node, {
+          scale: 3,
+          backgroundColor: '#ffffff',
+          useCORS: true,
+          windowWidth: Math.max(node.scrollWidth, 794)
+        });
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const margin = 0;
+        const availW = pageW - margin * 2;
+        const availH = pageH - margin * 2;
+        const imgW = availW;
+        const imgH = (canvas.height / canvas.width) * imgW;
+
+        if (imgH <= availH) {
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, margin, imgW, imgH);
+        } else {
+          // multi-page slice
+          const pageSliceHeightPx = Math.floor((availH / imgW) * canvas.width);
+          let y = 0;
+          let first = true;
+          while (y < canvas.height) {
+            const sliceH = Math.min(pageSliceHeightPx, canvas.height - y);
+            const slice = document.createElement('canvas');
+            slice.width = canvas.width;
+            slice.height = sliceH;
+            const ctx = slice.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, slice.width, slice.height);
+            ctx.drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+            const sliceImgH = (sliceH / canvas.width) * imgW;
+            if (!first) pdf.addPage();
+            pdf.addImage(slice.toDataURL('image/png'), 'PNG', margin, margin, imgW, sliceImgH);
+            y += sliceH;
+            first = false;
+          }
+        }
+
+        const c = state.currentCase || {};
+        const customer = state.customers.find(x => String(x.id) === String(c.customer_id));
+        const type = DOC_TYPES[c.doc_type] || DOC_TYPES.invoice;
+        const safeName = (customer?.name || '顧客名').replace(/[\\/:*?"<>|]/g, '');
+        const fileName = `${type.label}_${safeName}_${c.issue_date || todayStr()}.pdf`;
+        pdf.save(fileName);
+        toast('PDFをダウンロードしました');
+      } catch (err) {
+        console.error(err);
+        toast('PDF生成に失敗しました', 'error');
+      } finally {
+        if (scaler) scaler.style.transform = prevTransform;
+        showLoading(false);
+      }
+    });
+
+    // ── Init ──
+    (function init() {
+      hydrateIcons();
+      loadIssuer();
+      loadAll();
+      switchScreen('caseListScreen');
+    })();
+
+    // expose a few for inline handlers
+    window.switchScreen = switchScreen;
+    window.renderCustomerList = renderCustomerList;
+    window.renderMasterList = renderMasterList;
+    window.startNewCase = startNewCase;
+    window.closeModal = closeModal;
+    window.openIssuerModal = () => $('#issuerMenuBtn').click();
+    hydrateIcons();
+  </script>
+</body>
+</html>
