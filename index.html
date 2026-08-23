@@ -3972,7 +3972,7 @@ ${escapeHtml(c.notes)}
           windowWidth: Math.max(node.scrollWidth, 794)
         });
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
         const margin = 0;
