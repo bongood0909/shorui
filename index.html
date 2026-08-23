@@ -1288,6 +1288,120 @@
     .print-block .fine { color: var(--p-faint); font-size: 8pt; }
     .print-revenue-stamp { flex: 0 0 22mm; height: 26mm; align-self: flex-end; border: .6pt solid var(--p-rule); font-size: 7pt; color: var(--p-faint); line-height: 1.4; text-align: center; display: flex; align-items: center; justify-content: center; }
 
+    /* ═════════ 書体（4種類） ═════════ */
+    .print-document.font-gothic {
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+                   "Yu Gothic", "Meiryo", sans-serif;
+    }
+
+    .print-document.font-mincho {
+      font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho",
+                   "YuMincho", "Noto Serif JP", "MS PMincho", serif;
+    }
+
+    .print-document.font-maru {
+      font-family: "Hiragino Maru Gothic ProN", "Hiragino Maru Gothic Pro",
+                   "Noto Sans JP", "Yu Gothic", sans-serif;
+    }
+
+    .print-document.font-boldgothic {
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+                   "Yu Gothic", "Meiryo", sans-serif;
+      font-weight: 500;
+    }
+
+    .print-document.font-boldgothic .print-table tbody td,
+    .print-document.font-boldgothic .print-summary-row { font-weight: 500; }
+
+    /* ═════════ デザイン2：和風クラシック ═════════ */
+    .print-document.layout-classic {
+      --p-navy: #1a1a1a; --p-rule: #999; --p-rule-strong: #333;
+      --p-soft: #333; --p-faint: #666;
+      color: #111;
+    }
+
+    .print-document.layout-classic .print-doc-title {
+      color: #111;
+      border-top: 3pt double #333;
+      border-bottom: 3pt double #333;
+      padding: 2.5mm 0;
+      margin-bottom: 5mm;
+      letter-spacing: .6em;
+      text-indent: .6em;
+    }
+
+    .print-document.layout-classic .print-doc-title-en { display: none; }
+
+    .print-document.layout-classic .print-total-box {
+      background: #f4f2ec;
+      border-top: 2pt solid #333;
+      border-bottom: 2pt solid #333;
+    }
+
+    .print-document.layout-classic .print-table thead th {
+      background: #eceae4;
+      border: .6pt solid #666;
+      color: #111;
+    }
+
+    .print-document.layout-classic .print-table tbody td { border: .5pt solid #999; }
+    .print-document.layout-classic .print-table tbody tr:last-child td { border-bottom: .5pt solid #999; }
+
+    .print-document.layout-classic .print-summary-row.total {
+      border-top: 1pt solid #333;
+      border-bottom: 3pt double #333;
+      padding-bottom: 1.5mm;
+    }
+
+    .print-document.layout-classic .print-to-name { border-bottom: 1pt solid #333; }
+
+    /* ═════════ デザイン3：ミニマル ═════════ */
+    .print-document.layout-minimal {
+      --p-navy: #222; --p-rule: #e6e6e6; --p-rule-strong: #222;
+      --p-soft: #666; --p-faint: #aaa;
+    }
+
+    .print-document.layout-minimal .print-doc-title {
+      text-align: left;
+      font-size: 15pt;
+      letter-spacing: .2em;
+      text-indent: 0;
+      margin-bottom: 1mm;
+    }
+
+    .print-document.layout-minimal .print-doc-title-en {
+      text-align: left;
+      text-indent: 0;
+      letter-spacing: .35em;
+      margin-bottom: 6mm;
+    }
+
+    .print-document.layout-minimal .print-head { margin-bottom: 6mm; }
+
+    .print-document.layout-minimal .print-total-box {
+      background: transparent;
+      border-top: none;
+      border-bottom: .6pt solid #222;
+      padding: 2mm 0 3mm;
+    }
+
+    .print-document.layout-minimal .print-total-box-value { font-size: 19pt; }
+
+    .print-document.layout-minimal .print-table thead th {
+      border-top: none;
+      border-bottom: .6pt solid #222;
+      color: #999;
+      font-weight: 500;
+    }
+
+    .print-document.layout-minimal .print-table tbody td { border-bottom: .3pt solid #eee; }
+    .print-document.layout-minimal .print-table tbody tr:last-child td { border-bottom: .6pt solid #222; }
+    .print-document.layout-minimal .print-to-name { border-bottom: none; }
+
+    /* 印影が発行者の住所に重なるのを防ぐ（全デザイン共通） */
+    .print-from:has(.print-seal),
+    .print-from:has(.print-seal-image) { padding-right: 20mm; }
+
     @page { size: A4; margin: 12mm 14mm 14mm; }
 
     @media print {
@@ -1805,6 +1919,29 @@
           <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-weight:400;"><input type="checkbox" id="issuerSealWhite" checked>白い背景を透明にする</label>
           <div class="data-note">画像は自動で小さくしてから、この端末の中にだけ保存されます。<br>ネット上には保存されません。透過PNGを使うか、白背景を透明にするにチェックを入れてください。<br>画像を設定すると、上の「印の文字」より優先されます。</div>
         </div>
+
+        <div class="data-sep"></div>
+        <div class="data-note">帳票の見た目</div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>帳票デザイン</label>
+          <select id="issuerLayout">
+            <option value="navy">標準（紺・横罫）</option>
+            <option value="classic">和風クラシック（二重罫・格子）</option>
+            <option value="minimal">ミニマル（余白広め・細罫）</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>書体</label>
+          <select id="issuerFont">
+            <option value="gothic">ゴシック体</option>
+            <option value="mincho">明朝体</option>
+            <option value="maru">丸ゴシック体</option>
+            <option value="boldgothic">太めのゴシック体</option>
+          </select>
+          <div class="data-note">請求書・領収書の印刷に使う書体です。画面の表示は変わりません。</div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-close-modal="issuerModal">キャンセル</button>
@@ -2001,7 +2138,10 @@
     // 個人情報はコードに書かない。「発行者設定」画面から入力し端末にだけ保存する。
     const ISSUER_KEY = 'inv_issuer';
     const ISSUER_DEFAULT = {
-      company: '', zip: '', address: '', tel: '', staff: '', invoice_no: '', seal_text: '', seal_image: ''
+      company: '', zip: '', address: '', tel: '', staff: '', invoice_no: '',
+      seal_text: '', seal_image: '',
+      layout: 'navy',
+      font: 'gothic'
     };
     let ISSUER = Object.assign({}, ISSUER_DEFAULT);
     let pendingSealImage = '';
@@ -2474,6 +2614,8 @@
       $('#issuerStaff').value = ISSUER.staff || '';
       $('#issuerInvoiceNo').value = ISSUER.invoice_no || '';
       $('#issuerSeal').value = ISSUER.seal_text || '';
+      $('#issuerLayout').value = ISSUER.layout || 'navy';
+      $('#issuerFont').value = ISSUER.font || 'gothic';
       pendingSealImage = ISSUER.seal_image || '';
       $('#issuerSealPreview').src = pendingSealImage;
       $('#issuerSealPreview').style.display = pendingSealImage ? 'block' : 'none';
@@ -2510,7 +2652,9 @@
         company: $('#issuerCompany').value.trim(), zip: $('#issuerZip').value.trim(),
         address: $('#issuerAddress').value.trim(), tel: $('#issuerTel').value.trim(),
         staff: $('#issuerStaff').value.trim(), invoice_no: $('#issuerInvoiceNo').value.trim(),
-        seal_text: $('#issuerSeal').value.trim(), seal_image: pendingSealImage
+        seal_text: $('#issuerSeal').value.trim(), seal_image: pendingSealImage,
+        layout: $('#issuerLayout').value || 'navy',
+        font: $('#issuerFont').value || 'gothic'
       });
       if (!saved) return;
       closeModal('issuerModal');
@@ -3702,7 +3846,7 @@
 
       const html = `
         <div class="print-scaler" id="printScaler">
-        <div class="print-document" id="printDocument">
+        <div class="print-document layout-${ISSUER.layout || 'navy'} font-${ISSUER.font || 'gothic'}" id="printDocument">
           ${no || c.issue_date ? `
           <div class="print-meta">
             ${no ? `No. <b>${escapeHtml(no)}</b><br>` : ''}
@@ -3834,16 +3978,22 @@ ${escapeHtml(c.notes)}
         const margin = 0;
         const availW = pageW - margin * 2;
         const availH = pageH - margin * 2;
-        const imgW = availW;
+        let imgW = availW;
         let imgH = (canvas.height / canvas.width) * imgW;
+        let imgX = margin;
 
-        // 画面の帳票は 210mm×297mm だが、ブラウザの丸め誤差で数ミリ大きくなることがある。
-        // そのまま分割すると、ほぼ空っぽの2ページ目ができてしまうため、
-        // 1ページに収まる範囲のはみ出しは高さを詰めて1ページに収める。
-        if (imgH > availH && imgH - availH <= 8) imgH = availH;
+        // 画面の帳票は 210mm×297mm だが、内容やデザインによって数ミリ〜十数ミリ
+        // はみ出すことがある。そのまま分割するとほぼ空っぽの2ページ目ができるため、
+        // 8%以内のはみ出しは「縦横の比率を保ったまま」縮めて1ページに収める。
+        if (imgH > availH && imgH <= availH * 1.08) {
+          const shrink = availH / imgH;
+          imgW = imgW * shrink;
+          imgH = availH;
+          imgX = (pageW - imgW) / 2;
+        }
 
         if (imgH <= availH) {
-          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, margin, imgW, imgH);
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', imgX, margin, imgW, imgH);
         } else {
           // multi-page slice
           const pageSliceHeightPx = Math.floor((availH / imgW) * canvas.width);
