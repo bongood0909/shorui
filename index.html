@@ -588,6 +588,17 @@
       margin: 20px 0 16px;
     }
 
+    .tax-incl-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      min-height: 44px;
+    }
+
+    .tax-incl-toggle input { width: 20px; height: 20px; flex: none; }
+
     .price-hint {
       font-size: 11px;
       color: var(--color-text-subtle);
@@ -1275,6 +1286,25 @@
     .print-table tbody tr.is-discount td { color: var(--p-red); }
     .print-table tbody tr:last-child td { border-bottom: .8pt solid var(--p-rule-strong); }
     .print-table tbody td.empty { text-align: center; color: var(--p-faint); }
+    .incl-mark {
+      display: inline-block;
+      margin-left: 1.2mm;
+      padding: 0 .8mm;
+      border: .4pt solid var(--p-faint);
+      border-radius: .6mm;
+      font-size: 6.5pt;
+      line-height: 1.5;
+      color: var(--p-soft);
+      vertical-align: 1.2pt;
+      letter-spacing: 0;
+    }
+
+    .print-incl-note {
+      font-size: 8pt;
+      color: var(--p-soft);
+      margin: -2mm 0 4mm;
+    }
+
     .print-summary { margin-left: auto; width: 70mm; font-size: 9.5pt; margin-bottom: 6mm; }
     .print-summary-row { display: flex; justify-content: space-between; gap: 4mm; padding: 0.9mm 0; }
     .print-summary-row.sep { border-top: .4pt solid var(--p-rule); }
@@ -1288,7 +1318,7 @@
     .print-block .fine { color: var(--p-faint); font-size: 8pt; }
     .print-revenue-stamp { flex: 0 0 22mm; height: 26mm; align-self: flex-end; border: .6pt solid var(--p-rule); font-size: 7pt; color: var(--p-faint); line-height: 1.4; text-align: center; display: flex; align-items: center; justify-content: center; }
 
-    /* ═════════ 書体（4種類） ═════════ */
+    /* ═════════ 書体（2種類） ═════════ */
     .print-document.font-gothic {
       font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
                    "Yu Gothic", "Meiryo", sans-serif;
@@ -1299,104 +1329,77 @@
                    "YuMincho", "Noto Serif JP", "MS PMincho", serif;
     }
 
-    .print-document.font-maru {
-      font-family: "Hiragino Maru Gothic ProN", "Hiragino Maru Gothic Pro",
-                   "Noto Sans JP", "Yu Gothic", sans-serif;
-    }
+    /* ═════ B. レターヘッド型 ═════ */
+    .print-document.layout-letterhead .print-head { flex-direction:column-reverse; gap:0; margin-bottom:5mm; }
+    .print-document.layout-letterhead .print-from { flex:none !important; width:100% !important; padding-right:0 !important;
+      display:flex; align-items:flex-start; gap:6mm; flex-wrap:wrap;
+      border-bottom:1.4pt solid var(--p-navy); padding-bottom:2.5mm; margin-bottom:4mm; }
+    .print-document.layout-letterhead .print-from-name { font-size:17pt !important; letter-spacing:.06em; margin-bottom:0 !important;
+      flex:0 0 100%; }
+    .print-document.layout-letterhead .print-from br { display:none; }
+    .print-document.layout-letterhead .print-from-reg { border-top:none !important; margin-top:0 !important; padding-top:0 !important; }
+    .print-document.layout-letterhead .print-seal,.print-document.layout-letterhead .print-seal-image { top:0 !important; right:0 !important; }
+    .print-document.layout-letterhead .print-doc-title { text-align:right; font-size:14pt; letter-spacing:.3em; text-indent:0;
+      margin-bottom:0.5mm; }
+    .print-document.layout-letterhead .print-doc-title-en { text-align:right; text-indent:0; margin-bottom:4mm; }
+    .print-document.layout-letterhead .print-meta { position:static !important; text-align:right; margin-bottom:1mm; }
+    .print-document.layout-letterhead .print-to { padding-top:0; }
+    .print-document.layout-letterhead .print-to-name { font-size:16pt; border-bottom:none; padding-bottom:0; }
+    .print-document.layout-letterhead .print-total-box { background:transparent; border-top:none; border-bottom:2pt solid var(--p-navy); padding:2mm 0 2.5mm; }
+    .print-document.layout-letterhead .print-total-box-value { font-size:21pt; }
+    .print-document.layout-letterhead .print-table thead th { border-top:none; }
 
-    .print-document.font-boldgothic {
-      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
-                   "Yu Gothic", "Meiryo", sans-serif;
-      font-weight: 500;
-    }
+    /* ═════ C. 和風・格子 ═════ */
+    .print-document.layout-washi { background:#FBF8F1; --p-navy:#23201A; --p-ink:#1a1713; --p-soft:#4a453c;
+      --p-faint:#8a8275; --p-rule:#b9b0a0; --p-rule-strong:#3d372d; }
+    .print-document.layout-washi .print-doc-title { font-size:21pt; letter-spacing:.8em; text-indent:.8em;
+      border-top:3pt double #3d372d; border-bottom:3pt double #3d372d; padding:2mm 0; margin-bottom:4.5mm; }
+    .print-document.layout-washi .print-doc-title-en { display:none; }
+    .print-document.layout-washi .print-total-box { background:#F2ECDF; border-top:1.6pt solid #3d372d; border-bottom:1.6pt solid #3d372d; }
+    .print-document.layout-washi .print-table thead th { background:#EFE8DA; border:.6pt solid #7d7565; }
+    .print-document.layout-washi .print-table tbody td { border:.5pt solid #b9b0a0; }
+    .print-document.layout-washi .print-table tbody tr:last-child td { border-bottom:.5pt solid #b9b0a0; }
+    .print-document.layout-washi .print-summary { border:.6pt solid #b9b0a0; padding:2mm 3.5mm; background:#F7F2E7; }
+    .print-document.layout-washi .print-summary-row.total { border-top:1pt solid #3d372d; border-bottom:none; }
+    .print-document.layout-washi .print-to-name { border-bottom:1pt solid #3d372d; }
+    .print-document.layout-washi .print-block-title { letter-spacing:.2em; }
 
-    .print-document.font-boldgothic .print-table tbody td,
-    .print-document.font-boldgothic .print-summary-row { font-weight: 500; }
+    /* ═════ D. ヘッダーバンド型 ═════ */
+    .print-document.layout-band { --p-navy:#0C2233; }
+    .print-document.layout-band .print-doc-title { background:#0C2233; color:#fff; padding:3mm 0 2.5mm; margin:0 0 0;
+      font-size:16pt; letter-spacing:.4em; text-indent:.4em; }
+    .print-document.layout-band .print-doc-title-en { background:#0C2233; color:#8fa6ba; padding:0 0 2mm; margin:0 0 5mm; }
+    .print-document.layout-band .print-meta { color:#cfd9e2; }
+    .print-document.layout-band .print-meta b { color:#fff; }
+    .print-document.layout-band .print-total-box { background:#0C2233; border:none; padding:3mm 4mm; }
+    .print-document.layout-band .print-total-box-label { color:#fff; }
+    .print-document.layout-band .print-total-box-value { color:#fff; font-size:21pt; }
+    .print-document.layout-band .print-table thead th { background:#0C2233; color:#fff; border:none; padding:2.4mm 2mm; }
+    .print-document.layout-band .print-table tbody td { border-bottom:.4pt solid #dfe4e9; }
+    .print-document.layout-band .print-table tbody tr:last-child td { border-bottom:1pt solid #0C2233; }
+    .print-document.layout-band .print-summary-row.total { background:#EDF1F5; padding:2.2mm 3mm; margin:1.2mm -3mm 0; border-top:none; }
+    .print-document.layout-band .print-block-title { color:#0C2233; border-bottom-color:#0C2233; }
 
-    /* ═════════ デザイン2：和風クラシック ═════════ */
-    .print-document.layout-classic {
-      --p-navy: #1a1a1a; --p-rule: #999; --p-rule-strong: #333;
-      --p-soft: #333; --p-faint: #666;
-      color: #111;
-    }
-
-    .print-document.layout-classic .print-doc-title {
-      color: #111;
-      border-top: 3pt double #333;
-      border-bottom: 3pt double #333;
-      padding: 2.5mm 0;
-      margin-bottom: 5mm;
-      letter-spacing: .6em;
-      text-indent: .6em;
-    }
-
-    .print-document.layout-classic .print-doc-title-en { display: none; }
-
-    .print-document.layout-classic .print-total-box {
-      background: #f4f2ec;
-      border-top: 2pt solid #333;
-      border-bottom: 2pt solid #333;
-    }
-
-    .print-document.layout-classic .print-table thead th {
-      background: #eceae4;
-      border: .6pt solid #666;
-      color: #111;
-    }
-
-    .print-document.layout-classic .print-table tbody td { border: .5pt solid #999; }
-    .print-document.layout-classic .print-table tbody tr:last-child td { border-bottom: .5pt solid #999; }
-
-    .print-document.layout-classic .print-summary-row.total {
-      border-top: 1pt solid #333;
-      border-bottom: 3pt double #333;
-      padding-bottom: 1.5mm;
-    }
-
-    .print-document.layout-classic .print-to-name { border-bottom: 1pt solid #333; }
-
-    /* ═════════ デザイン3：ミニマル ═════════ */
-    .print-document.layout-minimal {
-      --p-navy: #222; --p-rule: #e6e6e6; --p-rule-strong: #222;
-      --p-soft: #666; --p-faint: #aaa;
-    }
-
-    .print-document.layout-minimal .print-doc-title {
-      text-align: left;
-      font-size: 15pt;
-      letter-spacing: .2em;
-      text-indent: 0;
-      margin-bottom: 1mm;
-    }
-
-    .print-document.layout-minimal .print-doc-title-en {
-      text-align: left;
-      text-indent: 0;
-      letter-spacing: .35em;
-      margin-bottom: 6mm;
-    }
-
-    .print-document.layout-minimal .print-head { margin-bottom: 6mm; }
-
-    .print-document.layout-minimal .print-total-box {
-      background: transparent;
-      border-top: none;
-      border-bottom: .6pt solid #222;
-      padding: 2mm 0 3mm;
-    }
-
-    .print-document.layout-minimal .print-total-box-value { font-size: 19pt; }
-
-    .print-document.layout-minimal .print-table thead th {
-      border-top: none;
-      border-bottom: .6pt solid #222;
-      color: #999;
-      font-weight: 500;
-    }
-
-    .print-document.layout-minimal .print-table tbody td { border-bottom: .3pt solid #eee; }
-    .print-document.layout-minimal .print-table tbody tr:last-child td { border-bottom: .6pt solid #222; }
-    .print-document.layout-minimal .print-to-name { border-bottom: none; }
+    /* ═════ E. カード・ゼブラ型 ═════ */
+    .print-document.layout-card { background:#F4F5F7; --p-navy:#1E2A38; --p-rule:#E3E6EA; --p-rule-strong:#1E2A38; }
+    .print-document.layout-card .print-doc-title { text-align:left; font-size:16pt; letter-spacing:.22em; text-indent:0; margin-bottom:1mm; }
+    .print-document.layout-card .print-doc-title-en { text-align:left; text-indent:0; margin-bottom:4mm; }
+    .print-document.layout-card .print-head { background:#fff; border-radius:2.5mm; padding:3.5mm; margin-bottom:3mm; }
+    .print-document.layout-card .print-to-name { border-bottom:none; }
+    .print-document.layout-card .print-total-box { background:#fff; border:none; border-radius:2.5mm; padding:3.5mm 4mm; margin-bottom:1.5mm;
+      box-shadow:0 0 0 .4pt #E3E6EA; }
+    .print-document.layout-card .print-total-box-value { font-size:22pt; }
+    .print-document.layout-card .print-subject { background:#fff; border-radius:2mm; padding:2mm 4mm; margin-bottom:3mm; }
+    .print-document.layout-card .print-table { background:#fff; border-radius:2.5mm; overflow:hidden; }
+    .print-document.layout-card .print-table thead th { background:#EAECEF; border:none; padding:2mm 3mm; color:#5b6675; }
+    .print-document.layout-card .print-table tbody td { border:none; padding:1.8mm 3mm; }
+    .print-document.layout-card .print-table tbody tr:nth-child(even) td { background:#F7F8FA; }
+    .print-document.layout-card .print-table tbody tr:last-child td { border-bottom:none; }
+    .print-document.layout-card .print-summary { background:#fff; border-radius:2.5mm; padding:2.5mm 4mm; margin-bottom:3.5mm; }
+    .print-document.layout-card .print-summary-row.total { border-top:.8pt solid #1E2A38; }
+    .print-document.layout-card .print-foot { gap:5mm; }
+    .print-document.layout-card .print-block { background:#fff; border-radius:2.5mm; padding:3mm; }
+    .print-document.layout-card .print-block-title { border-bottom-color:#E3E6EA; }
 
     /* 印影が発行者の住所に重なるのを防ぐ（全デザイン共通） */
     .print-from:has(.print-seal),
@@ -1926,9 +1929,11 @@
         <div class="form-group" style="margin-bottom:12px;">
           <label>帳票デザイン</label>
           <select id="issuerLayout">
-            <option value="navy">標準（紺・横罫）</option>
-            <option value="classic">和風クラシック（二重罫・格子）</option>
-            <option value="minimal">ミニマル（余白広め・細罫）</option>
+            <option value="standard">A. 標準（紺・横罫）</option>
+            <option value="letterhead">B. レターヘッド型</option>
+            <option value="washi">C. 和風・格子</option>
+            <option value="band">D. ヘッダーバンド型</option>
+            <option value="card">E. カード・ゼブラ型</option>
           </select>
         </div>
 
@@ -1937,8 +1942,6 @@
           <select id="issuerFont">
             <option value="gothic">ゴシック体</option>
             <option value="mincho">明朝体</option>
-            <option value="maru">丸ゴシック体</option>
-            <option value="boldgothic">太めのゴシック体</option>
           </select>
           <div class="data-note">請求書・領収書の印刷に使う書体です。画面の表示は変わりません。</div>
         </div>
@@ -2140,7 +2143,7 @@
     const ISSUER_DEFAULT = {
       company: '', zip: '', address: '', tel: '', staff: '', invoice_no: '',
       seal_text: '', seal_image: '',
-      layout: 'navy',
+      layout: 'standard',
       font: 'gothic'
     };
     let ISSUER = Object.assign({}, ISSUER_DEFAULT);
@@ -2614,7 +2617,7 @@
       $('#issuerStaff').value = ISSUER.staff || '';
       $('#issuerInvoiceNo').value = ISSUER.invoice_no || '';
       $('#issuerSeal').value = ISSUER.seal_text || '';
-      $('#issuerLayout').value = ISSUER.layout || 'navy';
+      $('#issuerLayout').value = ISSUER.layout || 'standard';
       $('#issuerFont').value = ISSUER.font || 'gothic';
       pendingSealImage = ISSUER.seal_image || '';
       $('#issuerSealPreview').src = pendingSealImage;
@@ -2653,7 +2656,7 @@
         address: $('#issuerAddress').value.trim(), tel: $('#issuerTel').value.trim(),
         staff: $('#issuerStaff').value.trim(), invoice_no: $('#issuerInvoiceNo').value.trim(),
         seal_text: $('#issuerSeal').value.trim(), seal_image: pendingSealImage,
-        layout: $('#issuerLayout').value || 'navy',
+        layout: $('#issuerLayout').value || 'standard',
         font: $('#issuerFont').value || 'gothic'
       });
       if (!saved) return;
@@ -3174,6 +3177,7 @@
           qty: Number(it.qty ?? 1),
           unit: it.unit || '',
           tax_rate: Number(it.tax_rate ?? 10),
+          tax_included: !!it.tax_included,
           item_date: it.item_date || ''
         }));
       renderCaseDetail();
@@ -3304,16 +3308,29 @@
             </div>
           </div>
           <div class="item-card-row full">
-            <div class="item-card-amount mono">小計 ${yen(amountFor(it))}</div>
+            <label class="tax-incl-toggle">
+              <input type="checkbox" data-field="tax_included" ${it.tax_included ? 'checked' : ''}>
+              単価に消費税が含まれている（税込単価）
+            </label>
+          </div>
+          <div class="item-card-row full">
+            <div class="item-card-amount mono">小計 ${yen(amountFor(it))}${it.tax_included ? '（税込）' : ''}</div>
           </div>
         </div>`).join('');
 
       host.querySelectorAll('.item-card').forEach(card => {
         const idx = Number(card.getAttribute('data-index'));
         card.querySelectorAll('[data-field]').forEach(inp => {
+          inp.addEventListener('change', () => { if (inp.type === 'checkbox') inp.dispatchEvent(new Event('input', {bubbles:false})); });
           inp.addEventListener('input', () => {
             const field = inp.getAttribute('data-field');
             let val = inp.value;
+            if (field === 'tax_included') {
+              state.editingItems[idx].tax_included = inp.checked;
+              refreshItemAmount(card, idx);
+              renderItems();
+              return;
+            }
             if (field === 'unit_price' || field === 'qty') {
               const n = toNum(val);
               // 入力途中（"" や "-"）は文字列のまま保持し、確定した数値だけ変換する
@@ -3454,27 +3471,30 @@
     }
 
     function computeTotals(items) {
-      const base = { 10: 0, 8: 0, 0: 0 };
-      let sub = 0;
+      const base = { 10: 0, 8: 0, 0: 0 };      // 税抜で入力された分
+      const incl = { 10: 0, 8: 0, 0: 0 };      // 税込で入力された分
       for (const it of items || []) {
         const amt = amountFor(it);
-        sub += amt;
         const r = Number(it.tax_rate ?? 10);
-        if (base[r] === undefined) base[r] = 0;
-        base[r] += amt;
+        if (base[r] === undefined) { base[r] = 0; incl[r] = 0; }
+        if (it.tax_included) incl[r] += amt; else base[r] += amt;
       }
-      // 税率ごとの小計に対して、1回だけ端数処理（0方向に切り捨て）
-      // toFixed(6) は浮動小数点の誤差（例: 23200.000000000004）で1円ズレるのを防ぐため
-      const taxOf = (b, rate) => Math.trunc(Number((b * rate / 100).toFixed(6)));
-      const t10 = taxOf(base[10], 10);
-      const t8  = taxOf(base[8], 8);
+      const trunc0 = (n) => Math.trunc(Number((n).toFixed(6)));
+      const calc = (r) => {
+        const b = base[r] || 0;
+        const i = incl[r] || 0;
+        const iNet = r === 0 ? i : trunc0(i / (1 + r / 100)); // 税込分の税抜額
+        const iTax = i - iNet;                                // 税込分に含まれる税
+        const bTax = r === 0 ? 0 : trunc0(b * r / 100);        // 税抜分の税
+        return { net: b + iNet, tax: bTax + iTax };
+      };
+      const t10 = calc(10), t8 = calc(8), t0 = calc(0);
+      const sub = t10.net + t8.net + t0.net;
       return {
         sub,
-        base10: base[10],
-        base8:  base[8],
-        base0:  base[0],
-        t10, t8,
-        total: sub + t10 + t8
+        base10: t10.net, base8: t8.net, base0: t0.net,
+        t10: t10.tax, t8: t8.tax,
+        total: sub + t10.tax + t8.tax
       };
     }
 
@@ -3518,6 +3538,7 @@
           qty: toNum(it.qty) ?? 0,
           unit: it.unit || '',
           tax_rate: Number(it.tax_rate ?? 10),
+          tax_included: !!it.tax_included,
           item_date: it.item_date || '',
           sort_order: i
         }));
@@ -3820,7 +3841,7 @@
         return `<tr class="${amt < 0 ? 'is-discount' : ''}">
           <td class="c">${it.item_date ? fmtDateShort(it.item_date) : ''}</td>
           <td class="l">${escapeHtml(it.name)}</td>
-          <td class="mono">${num(toNum(it.unit_price) ?? 0)}</td>
+          <td class="mono">${num(toNum(it.unit_price) ?? 0)}${it.tax_included ? '<span class="incl-mark">税込</span>' : ''}</td>
           <td class="mono">${num(toNum(it.qty) ?? 0)}</td>
           <td class="c">${escapeHtml(it.unit || '')}</td>
           <td class="c">${r}%</td>
@@ -3838,7 +3859,7 @@
         sumRows.push(`<div class="print-summary-row"><span class="lbl">消費税（8%）</span><span class="mono">${yen(t.t8)}</span></div>`);
       }
       if (t.base0 !== 0) {
-        sumRows.push(`<div class="print-summary-row sep"><span class="lbl">非課税・不課税</span><span class="mono">${yen(t.base0)}</span></div>`);
+        sumRows.push(`<div class="print-summary-row sep"><span class="lbl">その他（税率0%）</span><span class="mono">${yen(t.base0)}</span></div>`);
       }
       if (sumRows.length === 0) {
         sumRows.push(`<div class="print-summary-row"><span class="lbl">小計</span><span class="mono">${yen(t.sub)}</span></div>`);
@@ -3846,7 +3867,7 @@
 
       const html = `
         <div class="print-scaler" id="printScaler">
-        <div class="print-document layout-${ISSUER.layout || 'navy'} font-${ISSUER.font || 'gothic'}" id="printDocument">
+        <div class="print-document layout-${ISSUER.layout || 'standard'} font-${ISSUER.font || 'gothic'}" id="printDocument">
           ${no || c.issue_date ? `
           <div class="print-meta">
             ${no ? `No. <b>${escapeHtml(no)}</b><br>` : ''}
@@ -3901,6 +3922,8 @@
               ${rows || '<tr><td class="empty" colspan="7">明細がありません</td></tr>'}
             </tbody>
           </table>
+
+          ${items.some(it => it.tax_included) ? `<div class="print-incl-note">※「税込」と表示のある行は、単価・金額に消費税が含まれています。</div>` : ''}
 
           <div class="print-summary">
             ${sumRows.join('')}
