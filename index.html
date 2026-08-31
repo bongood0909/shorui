@@ -63,8 +63,8 @@
       --color-surface: #FFFFFF;
       --color-surface-muted: #F0EDE3;
       --color-text: #0A1428;
-      --color-text-muted: #3F4A60;
-      --color-text-subtle: #6B7588;
+      --color-text-muted: #2A3446;
+      --color-text-subtle: #4A5568;
       --color-border: #C8C0AC;
       --color-border-strong: #ADA593;
       --color-accent: #0F1F3D;
@@ -106,6 +106,8 @@
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
     }
+
+    ::placeholder { color: #8A93A3; opacity: 1; }
 
     button, input, select, textarea {
       font-family: inherit;
@@ -1284,8 +1286,8 @@
       flex-direction: column;
       box-shadow: 0 2px 18px rgba(10, 20, 40, .16);
       --p-ink: #111820;
-      --p-soft: #4a5568;
-      --p-faint: #8a94a3;
+      --p-soft: #333B47;
+      --p-faint: #5F6875;
       --p-rule: #c9cfd8;
       --p-rule-strong: #2b3648;
       --p-navy: #0F1F3D;
@@ -1320,7 +1322,7 @@
     .print-table thead th.c { text-align: center; }
     .print-table tbody td { padding: 1.5mm 2mm; border-bottom: .4pt solid var(--p-rule); text-align: right; vertical-align: top; }
     .print-table tbody td.l { text-align: left; }
-    .print-table tbody td.c { text-align: center; color: var(--p-soft); font-size: 8.5pt; }
+    .print-table tbody td.c { text-align: center; color: var(--p-soft); font-size: 8.5pt; font-weight: 500; }
     .print-table tbody tr.is-discount td { color: var(--p-red); }
     .print-table tbody tr:last-child td { border-bottom: .8pt solid var(--p-rule-strong); }
     .print-table tbody td.empty { text-align: center; color: var(--p-faint); }
@@ -1388,8 +1390,8 @@
     .print-document.layout-letterhead .print-table thead th { border-top:none; }
 
     /* ═════ C. 和風・格子 ═════ */
-    .print-document.layout-washi { background:#FBF8F1; --p-navy:#23201A; --p-ink:#1a1713; --p-soft:#4a453c;
-      --p-faint:#8a8275; --p-rule:#b9b0a0; --p-rule-strong:#3d372d; }
+    .print-document.layout-washi { background:#FBF8F1; --p-navy:#23201A; --p-ink:#1a1713; --p-soft:#3a352d;
+      --p-faint:#6b6558; --p-rule:#b9b0a0; --p-rule-strong:#3d372d; }
     .print-document.layout-washi .print-doc-title { font-size:21pt; letter-spacing:.8em; text-indent:.8em;
       border-top:3pt double #3d372d; border-bottom:3pt double #3d372d; padding:2mm 0; margin-bottom:4.5mm; }
     .print-document.layout-washi .print-doc-title-en { display:none; }
@@ -1406,7 +1408,7 @@
     .print-document.layout-band { --p-navy:#0C2233; }
     .print-document.layout-band .print-doc-title { background:#0C2233; color:#fff; padding:3mm 0 2.5mm; margin:0 0 0;
       font-size:16pt; letter-spacing:.4em; text-indent:.4em; }
-    .print-document.layout-band .print-doc-title-en { background:#0C2233; color:#8fa6ba; padding:0 0 2mm; margin:0 0 5mm; }
+    .print-document.layout-band .print-doc-title-en { background:#0C2233; color:#b8c8d6; padding:0 0 2mm; margin:0 0 5mm; }
     .print-document.layout-band .print-meta { color:#cfd9e2; }
     .print-document.layout-band .print-meta b { color:#fff; }
     .print-document.layout-band .print-total-box { background:#0C2233; border:none; padding:3mm 4mm; }
@@ -1429,7 +1431,7 @@
     .print-document.layout-card .print-total-box-value { font-size:22pt; }
     .print-document.layout-card .print-subject { background:#fff; border-radius:2mm; padding:2mm 4mm; margin-bottom:3mm; }
     .print-document.layout-card .print-table { background:#fff; border-radius:2.5mm; overflow:hidden; }
-    .print-document.layout-card .print-table thead th { background:#EAECEF; border:none; padding:2mm 3mm; color:#5b6675; }
+    .print-document.layout-card .print-table thead th { background:#EAECEF; border:none; padding:2mm 3mm; color:#414b59; }
     .print-document.layout-card .print-table tbody td { border:none; padding:1.8mm 3mm; }
     .print-document.layout-card .print-table tbody tr:nth-child(even) td { background:#F7F8FA; }
     .print-document.layout-card .print-table tbody tr:last-child td { border-bottom:none; }
