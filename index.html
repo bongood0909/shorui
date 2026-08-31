@@ -486,6 +486,35 @@
       margin-bottom: 10px;
     }
 
+    .item-move {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+      margin-right: 70px;   /* 「削除」ボタンに重ならないように */
+    }
+
+    .item-move-btn {
+      width: 44px;
+      min-height: 36px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      font-size: 12px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .item-move-btn:active { background: var(--color-surface-muted); }
+
+    .item-move-btn:disabled {
+      opacity: .25;
+      cursor: default;
+    }
+
     .item-card-index {
       font-size: 12px;
       font-weight: 700;
@@ -603,6 +632,15 @@
       font-size: 11px;
       color: var(--color-text-subtle);
       margin-top: 4px;
+    }
+
+    .item-card.just-moved {
+      animation: itemMoved .6s ease;
+    }
+
+    @keyframes itemMoved {
+      0%   { background: var(--color-accent-soft); }
+      100% { background: var(--color-surface); }
     }
 
     .item-card.is-discount {
@@ -1821,8 +1859,8 @@
         <!-- Preview Screen -->
         <div id="previewScreen" class="screen">
           <div class="preview-toolbar">
-            <button class="btn-accent" id="printBtn"><i data-lucide="printer" class="icon-inline"></i>印刷 / PDFで保存</button>
-            <button class="btn btn-secondary" id="downloadPdfBtn"><i data-lucide="file-text" class="icon-inline"></i>PDFを直接ダウンロード</button>
+            <button class="btn-accent" id="downloadPdfBtn"><i data-lucide="file-text" class="icon-inline"></i>PDFを保存</button>
+            <button class="btn btn-secondary" id="printBtn"><i data-lucide="printer" class="icon-inline"></i>プリンタで印刷</button>
           </div>
           <div id="printContainer" class="print-viewport"></div>
         </div>
@@ -3263,6 +3301,10 @@
         <div class="item-card" data-index="${i}">
           <div class="item-card-header">
             <div class="item-card-index">明細 ${i + 1}</div>
+            <div class="item-move">
+              <button type="button" class="item-move-btn" data-action="move-up" ${i === 0 ? 'disabled' : ''} aria-label="ひとつ上へ移動">▲</button>
+              <button type="button" class="item-move-btn" data-action="move-down" ${i === state.editingItems.length - 1 ? 'disabled' : ''} aria-label="ひとつ下へ移動">▼</button>
+            </div>
             <button class="item-card-delete" data-action="delete" data-index="${i}">削除</button>
           </div>
           <div class="item-card-row full">
@@ -3344,6 +3386,11 @@
             }
           });
         });
+        const upBtn = card.querySelector('[data-action="move-up"]');
+        if (upBtn) upBtn.addEventListener('click', () => moveItem(idx, -1));
+        const downBtn = card.querySelector('[data-action="move-down"]');
+        if (downBtn) downBtn.addEventListener('click', () => moveItem(idx, 1));
+
         const signBtn = card.querySelector('[data-action="toggle-sign"]');
         if (signBtn) {
           signBtn.addEventListener('click', () => {
@@ -3373,6 +3420,23 @@
 
     function syncSignBtn(btn, value) {
       if (btn) btn.classList.toggle('is-neg', (toNum(value) ?? 0) < 0);
+    }
+
+    // 明細をひとつ上／下へ動かす
+    function moveItem(idx, dir) {
+      const to = idx + dir;
+      const arr = state.editingItems;
+      if (to < 0 || to >= arr.length) return;
+      const tmp = arr[idx];
+      arr[idx] = arr[to];
+      arr[to] = tmp;
+      renderItems();
+      const moved = document.querySelector(`.item-card[data-index="${to}"]`);
+      if (moved) {
+        moved.classList.add('just-moved');
+        setTimeout(() => moved.classList.remove('just-moved'), 600);
+        moved.scrollIntoView({ block: 'nearest' });
+      }
     }
 
     function refreshItemAmount(card, idx) {
@@ -3970,12 +4034,14 @@ ${escapeHtml(c.notes)}
       if (state.currentScreen === 'previewScreen') fitPreview();
     });
 
+    // 印刷時の縮小解除は @media print の
+    //   .print-scaler { transform: none !important; }
+    // が行うため、JavaScript側では触らない。
+    // （以前はここで transform を書き換えてから 300ms 後に戻していたが、
+    //   iOS Safari では印刷シートの生成が終わる前にレイアウトが変わってしまい、
+    //   印刷画面が一瞬出てすぐ閉じる原因になっていた）
     $('#printBtn').addEventListener('click', () => {
-      const scaler = $('#printScaler');
-      const prev = scaler ? scaler.style.transform : '';
-      if (scaler) scaler.style.transform = 'none';
       window.print();
-      setTimeout(() => { if (scaler) scaler.style.transform = prev; }, 300);
     });
 
     // ── PDF export ──
