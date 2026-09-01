@@ -1445,9 +1445,39 @@
     .print-from:has(.print-seal),
     .print-from:has(.print-seal-image) { padding-right: 20mm; }
 
-    @page { size: A4; margin: 12mm 14mm 14mm; }
+    @page { size: A4; margin: 0; }
+
+    .print-image-holder { display: none; }
 
     @media print {
+      /* 印刷は「PDFと同じ絵」を紙に出す方式。
+         Safari が独自に余白やヘッダ・フッタを足しても、
+         画像1枚が1ページに収まるようにしている */
+      body.printing-image .container { display: none !important; }
+      body.printing-image .print-image-holder { display: block !important; }
+
+      body.printing-image .print-page {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        break-after: page;
+        page-break-after: always;
+      }
+
+      body.printing-image .print-page:last-child {
+        break-after: auto;
+        page-break-after: auto;
+      }
+
+      body.printing-image .print-page img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 100vh;
+        object-fit: contain;
+      }
+
       html, body { height: auto !important; overflow: visible !important; background: #fff; }
       .container { height: auto !important; display: block !important; }
       .main-content { overflow: visible !important; height: auto !important; display: block !important; }
@@ -1457,8 +1487,10 @@
       .toast-container, #loadingOverlay, .modal { display: none !important; }
       .print-viewport { overflow: visible !important; height: auto !important; }
       .print-scaler { transform: none !important; width: auto !important; }
-      .print-document { box-shadow: none; margin: 0; width: auto !important; padding: 0 !important; min-height: 0 !important; }
-      .print-meta { top: 0; right: 0; }
+      /* 印刷ボタンからは画像方式で出るが、ブラウザのメニューから直接印刷された
+         場合にも崩れないように、余白は帳票自身の padding で確保する
+         （@page の余白は 0 にしてあるため） */
+      .print-document { box-shadow: none; margin: 0; width: auto !important; min-height: 0 !important; }
       .print-table thead { display: table-header-group; }
       .print-table tr { break-inside: avoid; page-break-inside: avoid; }
       .print-summary, .print-foot { break-inside: avoid; page-break-inside: avoid; }
@@ -2038,6 +2070,8 @@
       </div>
     </div>
   </div>
+
+  <div id="printImageHolder" class="print-image-holder"></div>
 
   <input type="file" id="dataFileInput" style="position:absolute; left:-9999px; top:0; width:1px; height:1px; opacity:0;">
 
@@ -4042,8 +4076,82 @@ ${escapeHtml(c.notes)}
     // （以前はここで transform を書き換えてから 300ms 後に戻していたが、
     //   iOS Safari では印刷シートの生成が終わる前にレイアウトが変わってしまい、
     //   印刷画面が一瞬出てすぐ閉じる原因になっていた）
-    $('#printBtn').addEventListener('click', () => {
-      window.print();
+    // 帳票を「A4ページごとの画像」に変換する。PDF出力と印刷で共通に使う。
+    // 返り値: { pages: [dataURL...], widthRatio } widthRatio は 1 ページ目を
+    // 比率を保って縮めたときの幅の割合（1 なら等倍）
+    async function renderDocumentPages() {
+      const node = $('#printDocument');
+      if (!node) throw new Error('プレビューが見つかりません');
+      const scaler = $('#printScaler');
+      const prevTransform = scaler ? scaler.style.transform : '';
+      try {
+        if (scaler) scaler.style.transform = 'none';
+        await new Promise(r => setTimeout(r, 50));
+        const canvas = await html2canvas(node, {
+          scale: 3,
+          backgroundColor: '#ffffff',
+          useCORS: true,
+          windowWidth: Math.max(node.scrollWidth, 794)
+        });
+        const A4_RATIO = 297 / 210;                       // 高さ ÷ 幅
+        const pageHeightPx = canvas.width * A4_RATIO;     // 1ページぶんの高さ（画素）
+        const pages = [];
+        let widthRatio = 1;
+
+        if (canvas.height <= pageHeightPx * 1.08) {
+          // 1ページに収まる（8%以内のはみ出しは比率を保ったまま縮める）
+          if (canvas.height > pageHeightPx) widthRatio = pageHeightPx / canvas.height;
+          pages.push(canvas.toDataURL('image/png'));
+        } else {
+          const minSlicePx = Math.max(2, Math.round(canvas.width / 210)); // 約1mm
+          let y = 0;
+          while (y < canvas.height) {
+            const sliceH = Math.min(Math.floor(pageHeightPx), canvas.height - y);
+            if (sliceH < minSlicePx) break;
+            const slice = document.createElement('canvas');
+            slice.width = canvas.width;
+            slice.height = sliceH;
+            const ctx = slice.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, slice.width, slice.height);
+            ctx.drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+            pages.push(slice.toDataURL('image/png'));
+            y += sliceH;
+          }
+        }
+        return { pages, widthRatio };
+      } finally {
+        if (scaler) scaler.style.transform = prevTransform;
+      }
+    }
+
+    // ── 印刷 ──
+    // Safari の印刷は独自に余白・ヘッダ・フッタを足すため、HTMLをそのまま
+    // 印刷させると2ページに割れてしまう。そこで PDF と同じ「1枚の絵」にしてから
+    // 印刷することで、環境によらず1ページに収める。
+    $('#printBtn').addEventListener('click', async () => {
+      const holder = $('#printImageHolder');
+      if (!holder) { window.print(); return; }
+      showLoading(true);
+      try {
+        const { pages, widthRatio } = await renderDocumentPages();
+        holder.innerHTML = pages.map(src =>
+          `<div class="print-page"><img src="${src}" style="width:${(widthRatio * 100).toFixed(3)}%"></div>`
+        ).join('');
+        document.body.classList.add('printing-image');
+        showLoading(false);
+        await new Promise(r => setTimeout(r, 150));
+        window.print();
+      } catch (err) {
+        console.error(err);
+        showLoading(false);
+        toast('印刷の準備に失敗しました', 'error');
+      } finally {
+        setTimeout(() => {
+          document.body.classList.remove('printing-image');
+          if (holder) holder.innerHTML = '';
+        }, 2000);
+      }
     });
 
     // ── PDF export ──
