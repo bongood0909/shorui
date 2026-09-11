@@ -1266,6 +1266,9 @@
       min-width: 140px;
     }
 
+    /* 「PDFを送る」は一番よく使うので、常に横1行をまるごと使う */
+    .preview-toolbar button.toolbar-wide { flex: 1 1 100%; }
+
     /* ══════════ 帳票（プレビュー & 印刷共通） ══════════ */
 
     .print-viewport { width: 100%; overflow: hidden; }
@@ -1893,8 +1896,9 @@
         <!-- Preview Screen -->
         <div id="previewScreen" class="screen">
           <div class="preview-toolbar">
-            <button class="btn-accent" id="downloadPdfBtn"><i data-lucide="file-text" class="icon-inline"></i>PDFを保存</button>
-            <button class="btn btn-secondary" id="printBtn"><i data-lucide="printer" class="icon-inline"></i>プリンタで印刷</button>
+            <button class="btn-accent toolbar-wide" id="sharePdfBtn"><i data-lucide="send" class="icon-inline"></i>PDFを送る（LINE・メール）</button>
+            <button class="btn btn-secondary" id="downloadPdfBtn"><i data-lucide="file-text" class="icon-inline"></i>PDFを保存</button>
+            <button class="btn btn-secondary" id="printBtn"><i data-lucide="printer" class="icon-inline"></i>印刷</button>
           </div>
           <div id="printContainer" class="print-viewport"></div>
         </div>
@@ -4052,6 +4056,11 @@ ${escapeHtml(c.notes)}
       switchScreen('previewScreen');
       fitPreview();
       hydrateIcons();
+
+      // 内容が変わったので、作り置きのPDFは捨てて作り直す。
+      // 「送る」を押した瞬間に共有画面を出せるよう、裏で先に用意しておく。
+      invalidatePdfCache();
+      setTimeout(() => { preparePdf().catch(() => {}); }, 300);
     }
 
     function fitPreview() {
@@ -4076,23 +4085,52 @@ ${escapeHtml(c.notes)}
     // （以前はここで transform を書き換えてから 300ms 後に戻していたが、
     //   iOS Safari では印刷シートの生成が終わる前にレイアウトが変わってしまい、
     //   印刷画面が一瞬出てすぐ閉じる原因になっていた）
-    // 帳票を「A4ページごとの画像」に変換する。PDF出力と印刷で共通に使う。
-    // 返り値: { pages: [dataURL...], widthRatio } widthRatio は 1 ページ目を
-    // 比率を保って縮めたときの幅の割合（1 なら等倍）
-    async function renderDocumentPages() {
+    // ── 帳票を実寸で描画する ──
+    // 画面のプレビューは幅に合わせて縮小表示しているので、そのまま html2canvas に
+    // かけると縮んだ絵になってしまう。かといって画面の帳票そのものを実寸に戻すと、
+    // 描画のあいだプレビューがちらつく。
+    // そこで「画面の外に置いた複製」を実寸で描画する。画面側は一切さわらない。
+    async function renderDocumentCanvas() {
       const node = $('#printDocument');
       if (!node) throw new Error('プレビューが見つかりません');
-      const scaler = $('#printScaler');
-      const prevTransform = scaler ? scaler.style.transform : '';
+
+      const host = document.createElement('div');
+      host.style.cssText = 'position:fixed;left:-10000px;top:0;width:210mm;' +
+                           'background:#fff;z-index:-1;pointer-events:none;';
+      const clone = node.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.style.transform = 'none';
+      clone.style.margin = '0';
+      clone.style.boxShadow = 'none';
+      host.appendChild(clone);
+      document.body.appendChild(host);
       try {
-        if (scaler) scaler.style.transform = 'none';
         await new Promise(r => setTimeout(r, 50));
-        const canvas = await html2canvas(node, {
+        return await html2canvas(clone, {
           scale: 3,
           backgroundColor: '#ffffff',
           useCORS: true,
-          windowWidth: Math.max(node.scrollWidth, 794)
+          windowWidth: Math.max(clone.scrollWidth, 794)
         });
+      } finally {
+        if (host.parentNode) host.parentNode.removeChild(host);
+      }
+    }
+
+    // 描画は同時に走らせない。順番に実行する。
+    let renderQueue = Promise.resolve();
+    function withDocumentRender(fn) {
+      const run = renderQueue.then(() => fn(), () => fn());
+      renderQueue = run.then(() => {}, () => {});
+      return run;
+    }
+
+    // 帳票を「A4ページごとの画像」に変換する。印刷で使う。
+    // 返り値: { pages: [dataURL...], widthRatio } widthRatio は 1 ページ目を
+    // 比率を保って縮めたときの幅の割合（1 なら等倍）
+    async function renderDocumentPages() {
+      return await withDocumentRender(async () => {
+        const canvas = await renderDocumentCanvas();
         const A4_RATIO = 297 / 210;                       // 高さ ÷ 幅
         const pageHeightPx = canvas.width * A4_RATIO;     // 1ページぶんの高さ（画素）
         const pages = [];
@@ -4120,9 +4158,7 @@ ${escapeHtml(c.notes)}
           }
         }
         return { pages, widthRatio };
-      } finally {
-        if (scaler) scaler.style.transform = prevTransform;
-      }
+      });
     }
 
     // ── 印刷 ──
@@ -4155,21 +4191,19 @@ ${escapeHtml(c.notes)}
     });
 
     // ── PDF export ──
-    $('#downloadPdfBtn').addEventListener('click', async () => {
-      const node = $('#printDocument');
-      if (!node) { toast('プレビューが見つかりません', 'error'); return; }
-      const scaler = $('#printScaler');
-      const prevTransform = scaler ? scaler.style.transform : '';
-      showLoading(true);
-      try {
-        if (scaler) scaler.style.transform = 'none';
-        await new Promise(r => setTimeout(r, 50));
-        const canvas = await html2canvas(node, {
-          scale: 3,
-          backgroundColor: '#ffffff',
-          useCORS: true,
-          windowWidth: Math.max(node.scrollWidth, 794)
-        });
+    // ファイル名（保存でも送信でも同じ名前を使う）
+    function pdfFileName() {
+      const c = state.currentCase || {};
+      const customer = state.customers.find(x => String(x.id) === String(c.customer_id));
+      const type = DOC_TYPES[c.doc_type] || DOC_TYPES.invoice;
+      const safeName = (customer?.name || '顧客名').replace(/[\\/:*?"<>|]/g, '');
+      return `${type.label}_${safeName}_${c.issue_date || todayStr()}.pdf`;
+    }
+
+    // 帳票からPDFを作り、{ blob, fileName } を返す
+    async function buildPdfBlob() {
+      return await withDocumentRender(async () => {
+        const canvas = await renderDocumentCanvas();
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
         const pageW = pdf.internal.pageSize.getWidth();
@@ -4218,19 +4252,112 @@ ${escapeHtml(c.notes)}
           }
         }
 
-        const c = state.currentCase || {};
-        const customer = state.customers.find(x => String(x.id) === String(c.customer_id));
-        const type = DOC_TYPES[c.doc_type] || DOC_TYPES.invoice;
-        const safeName = (customer?.name || '顧客名').replace(/[\\/:*?"<>|]/g, '');
-        const fileName = `${type.label}_${safeName}_${c.issue_date || todayStr()}.pdf`;
-        pdf.save(fileName);
+        return { blob: pdf.output('blob'), fileName: pdfFileName() };
+      });
+    }
+
+    // 作ったPDFは覚えておく。
+    // 「送る」を押した瞬間にすぐ共有画面を出せるようにするため
+    // （iPhoneは、ボタンを押してから時間が経つと共有画面を開けない）。
+    let pdfCache = null;
+    let pdfJob = null;
+    let pdfVersion = 0;
+
+    function invalidatePdfCache() {
+      pdfCache = null;
+      pdfJob = null;
+      pdfVersion++;
+    }
+
+    function preparePdf() {
+      if (pdfCache) return Promise.resolve(pdfCache);
+      if (pdfJob) return pdfJob;
+      const ver = pdfVersion;
+      pdfJob = buildPdfBlob().then(res => {
+        if (ver === pdfVersion) { pdfCache = res; pdfJob = null; }
+        return res;
+      }, err => {
+        if (ver === pdfVersion) pdfJob = null;
+        throw err;
+      });
+      return pdfJob;
+    }
+
+    function downloadBlob(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        if (a.parentNode) a.parentNode.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 4000);
+    }
+
+    // この端末がファイルの共有に対応しているか
+    function canShareFiles() {
+      try {
+        if (!navigator.share || !navigator.canShare) return false;
+        const probe = new File([new Blob(['x'], { type: 'application/pdf' })],
+                               'test.pdf', { type: 'application/pdf' });
+        return navigator.canShare({ files: [probe] });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    $('#downloadPdfBtn').addEventListener('click', async () => {
+      showLoading(true);
+      try {
+        const { blob, fileName } = await preparePdf();
+        downloadBlob(blob, fileName);
         toast('PDFをダウンロードしました');
       } catch (err) {
         console.error(err);
         toast('PDF生成に失敗しました', 'error');
       } finally {
-        if (scaler) scaler.style.transform = prevTransform;
         showLoading(false);
+      }
+    });
+
+    // ── PDFだけを送る ──
+    // navigator.share に files だけを渡す。url や text を渡すと、
+    // LINEでは「PDF＋そのURLの文章」の2つが送られてしまうため、
+    // ここでは意図的に files 以外を一切渡さない。
+    $('#sharePdfBtn').addEventListener('click', async () => {
+      let data;
+      if (pdfCache) {
+        data = pdfCache;                       // 準備済み：待ち時間ゼロで共有へ
+      } else {
+        showLoading(true);
+        try {
+          data = await preparePdf();
+        } catch (err) {
+          console.error(err);
+          showLoading(false);
+          toast('PDFの準備に失敗しました', 'error');
+          return;
+        }
+        showLoading(false);
+      }
+
+      const file = new File([data.blob], data.fileName, { type: 'application/pdf' });
+
+      if (!canShareFiles()) {
+        downloadBlob(data.blob, data.fileName);
+        toast('この端末では直接送れないため、保存しました');
+        return;
+      }
+
+      try {
+        await navigator.share({ files: [file] });
+      } catch (err) {
+        if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) return;
+        console.error(err);
+        downloadBlob(data.blob, data.fileName);
+        toast('共有できなかったため、保存しました', 'warn');
       }
     });
 
@@ -4240,6 +4367,12 @@ ${escapeHtml(c.notes)}
       loadIssuer();
       loadAll();
       switchScreen('caseListScreen');
+      // ファイルの共有に対応していない端末（多くのパソコン）では
+      // 「PDFを送る」を隠す
+      if (!canShareFiles()) {
+        const b = $('#sharePdfBtn');
+        if (b) b.style.display = 'none';
+      }
     })();
 
     // expose a few for inline handlers
